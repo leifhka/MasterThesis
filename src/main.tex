@@ -1,0 +1,38 @@
+\documentclass[a4paper,UKenglish]{book}
+\usepackage{babel,textcomp,csquotes,duomasterforside,varioref,graphicx}
+\usepackage[backend=biber,style=numeric-comp]{biblatex}
+
+\addbibresource{bibliography.bib}
+
+\title{Frog: Functions for ontologies}
+\author{Marlen Jarholt}
+\date{16.05.2022}
+
+\begin{document}
+    \duoforside[
+        program = {Informatics: Programming and System Architecture},
+        dept = {Department of Informatics},
+        date = {Spring 2022},
+        long
+    ]
+    \frontmatter
+    %legge til abstract
+    %legge til acknowledgments
+
+    \tableofcontents
+    \listoffigures
+    \listoftables
+
+    \mainmatter
+
+    \input{chapters/introduction.tex}
+    \input{chapters/functionalProgramming.tex}
+    \input{chapters/semanticWeb.tex}
+    \input{chapters/design.tex}
+    \input{chapters/implementation.tex}
+    \input{chapters/evaluation.tex}
+    \input{chapters/conclusion.tex}
+
+    \backmatter
+    \printbibliography
+\end{document}
