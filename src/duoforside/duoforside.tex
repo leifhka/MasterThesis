@@ -22,7 +22,7 @@
 %% The main command:
 
 \newcommand{\duoforside}[1][]{{%
-  \parindent = 0pt   \parskip = 0pt   \relax
+  \parindent = 0pt   \parskip = 0pt
   \@ifundefined{hypersetup}{}{\hypersetup{pageanchor=false}}
   \setkeys{duo@keys}{#1}
   \duo@page@i
@@ -52,7 +52,7 @@
     \fi
     \duo@author\par
     \vspace{1\baselineskip plus 3fill}
-    \includegraphics[width=6cm]{DUO_UiO_segl}\par
+    \includegraphics[width=6cm]{duoforside/DUO_UiO_segl}\par
     \vspace{1\baselineskip plus 4fill}
     \ifx \duo@kind = \duo@empty
     \else
@@ -97,11 +97,10 @@
 }
 
 \newcommand{\duo@page@iv}{%
-  \begingroup
+  \begin{titlepage}
     \null
     \vfill
     \raggedright
-    \thispagestyle{empty}
     \def \and {, }
     \textcopyright~\arabic{duo@cur@year} \duo@author\\[\baselineskip]
     \leavevmode\duo@title\\[\baselineskip]
@@ -109,9 +108,7 @@
     \ifthenelse{\equal{\duo@printer}{}}{}
       {\\[\baselineskip] \csname duo@printertitle@\duo@lang \endcsname:
         \duo@printer}
-  \endgroup
-  \newpage
-  \setcounter{page}{1}
+  \end{titlepage}
 }
 
 

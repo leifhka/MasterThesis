@@ -1,6 +1,29 @@
 
 \chapter{Intorduction}
 
-\section{Background and motivation}
-\section{Problem statment}
+\section{Background and Motivation}
+In 2001 Tim Bernes-Lee published his vision of the Semantic Web, an extension of the World Wide Web\cite{Berner-Lee_The_samantic_web}. The motivation behind Semantic Web was to give the information or data on the Web a formal description and well-defined meaning, resulting in the data being more machine-readable, enabling better cooperation between computers and humans\cite{Berner-Lee_The_samantic_web}. To achieve this goal, the Semantic Web utilises Semantic Technologies, which links the data together by providing a formal description of terms, relationships and concepts in the knowledge domain, resulting in structured data called linked data. Mauro and Tiziana summarised link data as a means to connect, expose and share web data utilising identifiers\cite{Mauro_Tiziana_linked_data}. The connections, which are identifiers, connect different identifiers and provide information on the relationship the first identifiers have to the second one—resembling a directed graph. 
+
+\para
+The fundamental building block in Semantic Technologies is Resource Description Framework in short RDF\cite{W3C_RDF}. RDF is mainly a method used in the Semantic Web to structure and represent information in a web resource as linked data, using URIs as identifiers and triples to manifest how the resources are connected. In short, URIs distinguishes between different recourses meaning that each URI uniquely identifies one resource. Furthermore, triples consist of a subject, predicate and object, describing the subject's relationship to the object. A set of triples is often called an RDF graph. Section \ref{rdf} provides a more thorough explanation regarding RDF.
+
+\para
+Building an RDF graph consist of creating multiple triples such as quantities of data are connected. Often many of these triples have the same structure. For instance, a domain containing information concerning persons would possibly contain a triple concerning the person's age, name, social security number, parents, family members, and the building one inhabits. Writing out these triples for one person does not take significant time. However, creating a graph that contains only 100 persons, were assumed that every person has at least one parent and family member, would at best produce 600 triples. Composing the triples would be a tedious job, in addition to containing heaps of repetition.
+
+\para
+Reasonable Ontology Templates, OTTR\cite{OTTR_online}, addresses these issues with a language, making it feasible to compose parametrised modelling patterns. The language contains templates and instances. In brief, templates have modelling patterns, that when expanded, creates RDF graphs. Instances, on the other hand, uses a template triggering the expansion resulting in an RDF graph. In addition, OTTR provides a language to translate data from tabular files named tabOTTR\cite{OTTR_tabOTTR} and a mapping language to be used on existing external sources named bOTTR \cite{OTTR_bOTTR} by instantiating templates. Section \ref{OTTR} presents a more in-depth summary regarding OTTR.
+
+\para
+As a result, OTTR is believed to offer benefits such as better abstractions, Separation of design and content, and improve the do not repeat yourself(DRY) principle, to name a few\cite{OTTR_online_benefits}. The idea behind the Separation of design and content is that ontology experts can manage templates. In contrast, domain experts can create instances using tools they know, such as spreadsheets\cite{OTTR_online_benefits}. 
+
+\para
+Constructing the graph containing the data about the 100 persons would now only need one template and one instance per person. It will still be time-consuming making the 100 instances, however, if the data is structured somehow as it ordinarily is, for instance, in a CSV file. Building the RDF graph would now only require one mapping from file to instances and a template. The outcome is a reduced amount of lines written by a person, less time-consuming and removes repetition. 
+
+\para
+Nevertheless, the template expanded from the CSV file may require additional information that the file naturally would not bear, such as the URI, to identify each person uniquely. The consequence is that each domain expert that utilises the template needs to add the URIs manually or use the mapping.  Consequently, the Separation of design and content benefit has an opportunity for improvement since a more suitable solution would have been that the template in itself could produce the URIs from, for instance, using the social security number. The templates producing the URIs would be especially beneficial if multiple files were used to create the instances since the domain experts are obligated to supplement the data in all files.  Therefore, additional benefits to producing the URI in the template instead of each file would be that OTTR is less error-prone and improve the don't repeat yourself principle.
+
+\section{Problem Statment}
+
+\section{Scoop}
+Ikke et fokus paa effektivitet, argumentere for at spraake slik det er naa er lagd for relativt smaa funksjoner hvor effektivitet ikke nodvendigvis har noe å si. 
 \section{Outline}

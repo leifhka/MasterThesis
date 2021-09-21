@@ -1,6 +1,14 @@
-\documentclass[a4paper,UKenglish]{book}
-\usepackage{babel,textcomp,csquotes,duomasterforside,varioref,graphicx}
+\documentclass[12pt, a4paper, english, openright]{book}
+\usepackage[margin=1in]{geometry}
+\usepackage{babel,textcomp,csquotes,varioref,graphicx}
+\usepackage{duoforside/duomasterforside}
 \usepackage[backend=biber,style=numeric-comp]{biblatex}
+\usepackage{hyperref}
+
+\newcommand{\para}{\vspace{1.25\baselineskip}\noindent}
+
+\newcommand{\lhk}[1]{\textcolor{red}{[#1]}}
+%\newcommand{\lhk}[1]{}
 
 \addbibresource{bibliography.bib}
 

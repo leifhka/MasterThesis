@@ -16,4 +16,4 @@ make clean
 
 ## Front page
 
-Information about the front page can be found her: https://www.mn.uio.no/ifi/tjenester/it/hjelp/latex/ifikompendiumforside.html
+https://www.mn.uio.no/ifi/tjenester/it/hjelp/latex/duomasterforside-guide.pdf
