@@ -1,0 +1,13 @@
+PREFIX  ex-p:  <http://example.org/person/> 
+PREFIX ex-r:  <http://example.org/relation/> 
+
+SELECT ?name ?age ?father
+WHERE{
+    ?person ex-r:hasName ?name;
+            ex-r:hasAge ?age.
+
+    FILTER(?age < 18)
+    OPTIONAL{
+        ?person ex-r:hasFather ?father.
+    }
+}

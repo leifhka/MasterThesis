@@ -1,0 +1,19 @@
+@prefix  ex-p:  <http://example.org/person/> . 
+@prefix ex-r:  <http://example.org/relation/> . 
+
+_:person1 ex-r:hasAge 17;
+    ex-r:hasName "Sofie";
+    ex-r:hasLifeStage ex-p:Teenager.
+
+_:person2 ex-r:hasAge 16;
+    ex-r:hasName "Harry";
+    ex-r:hasFather ex-p:Noah;
+    ex-r:hasLifeStage ex-p:Teenager.
+
+ex-p:Noah ex-r:hasAge 47;
+    ex-r:hasName "Noah";
+    ex-r:hasFather ex-p:Fred;
+    ex-r:hasLifeStage ex-p:Adult. 
+
+ex-p:Fred  ex-r:hasName "Fred";
+    ex-r:hasLifeStage ex-p:Retired. 

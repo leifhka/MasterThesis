@@ -4,11 +4,50 @@
 \usepackage{duoforside/duomasterforside}
 \usepackage[backend=biber,style=numeric-comp]{biblatex}
 \usepackage{hyperref}
-
+\usepackage{listings}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc,url}
+\usepackage{amssymb}
+\usepackage{ upgreek }
+\usepackage{listings} 
+\usepackage{tikz}
+\usepackage{tablefootnote}
 \newcommand{\para}{\vspace{1.25\baselineskip}\noindent}
+\usepackage{float}
+\restylefloat{table}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{hhline}
+\usepackage{arydshln}
+
 
 \newcommand{\lhk}[1]{\textcolor{red}{[#1]}}
 %\newcommand{\lhk}[1]{}
+
+\lstset{showstringspaces=false,
+basicstyle=\ttfamily,
+%keepspaces=true,
+breaklines=true,
+columns=fixed,
+keywordstyle=\color{keywordcolor},
+commentstyle=\color{gray}
+}
+
+\lstdefinelanguage{turtle}
+{
+    columns=fullflexible,
+    keywordstyle=\color{black},
+    morekeywords={@prefix,@base,@forSome,@forAll,@keywords},
+    morecomment=[l]{\#},
+    tabsize=4,
+    alsoletter={-?}, % allowed in names
+    morecomment=[s][\color{black}]{<}{>},
+    basicstyle=\ttfamily\color{black},
+    %numberstyle=\color{black},
+    morestring=[b][\color{black}]\",
+    backgroundcolor=\color{white},
+}
 
 \addbibresource{bibliography.bib}
 

@@ -6,6 +6,190 @@
 
 \section{OWL}
 
+\section{SPARQL}
+\emph{SPARQL}\cite{SPARQL} enables querying over RDF graphs. SPARQL has several similarities to SQL for Relation Databases, such as the SELECT and WHERE clause. The WHERE-clause contains a graph pattern, a set of RDF-tripels, that SPARQL searches for in the RDF graphs. In addition, the graph pattern can contain variables denoted \lstinline{?variableName}, which is the resources that SPARQL extracts. Furthermore, the SELECT lets us select which variables we want to obtain and return their bindings. Applying SELECT * will return all the variables used in the WHERE clause.
+
+\para
+As an example, we utilise the same ontology about families used in section \ref{rdf}.  Additionally, the ontology now also contain the relation ex-r:lifeStage, a relation from a person to the person's life stage, e.g. child. All the examples in this section will query over the following graph: 
+
+\para
+\begin{lstlisting}[frame=single, language=turtle, frame=none]
+@prefix  ex-p:  <http://example.org/person/> . 
+@prefix ex-r:  <http://example.org/relation/> . 
+
+_:person1 ex-r:hasAge 17;
+    ex-r:hasName "Sofie";
+    ex-r:hasLifeStage ex-p:Teenager.
+
+_:person2 ex-r:hasAge 16;
+    ex-r:hasName "Harry";
+    ex-r:hasFather ex-p:Noah;
+    ex-r:hasLifeStage ex-p:Teenager.
+
+ex-p:Noah ex-r:hasAge 47;
+    ex-r:hasName "Noah";
+    ex-r:hasFather ex-p:Fred;
+    ex-r:hasLifeStage ex-p:Adult. 
+
+ex-p:Fred  ex-r:hasName "Fred";
+    ex-r:hasLifeStage ex-p:Retired. 
+\end{lstlisting}
+
+\para
+The following is a SPARQL query that retrieves every person with an age and a name. 
+
+\para
+\begin{lstlisting}[frame=single, language=turtle, frame=none]
+PREFIX  ex-p:  <http://example.org/person/> 
+PREFIX ex-r:  <http://example.org/relation/> 
+
+SELECT *
+WHERE{
+    _:person ex-r:hasName ?name;
+            ex-r:hasAge ?age.
+}
+\end{lstlisting}
+
+\para
+The SPARQL query above results in the following table. 
+
+\para
+\begin{tabular}{@{}cc@{}}
+    \toprule
+    name & age  \\ \midrule
+    Sofie & 17 \\ 
+    Harry & 16 \\ 
+    Noah  & 47 \\ \bottomrule
+\end{tabular}
+
+\para 
+In addition, SPARQL introduces the UNION pattern. Graph patterns can utilise UNION between them, combining them, resulting in SPARQL extracting the results in all graph patterns. An example of using UNION is to extract the name of every person that is either in the old or teenager life stage.
+
+\para
+\begin{lstlisting}[frame=single, language=turtle, frame=none]
+PREFIX  ex-p:  <http://example.org/person/> 
+PREFIX ex-r:  <http://example.org/relation/> 
+
+SELECT ?name
+WHERE{
+    {
+        ?person ex-r:hasName ?name;
+            ex-r:hasLifeStage ex-p:Teenager.
+
+    } UNION {
+        ?person ex-r:hasName ?name;
+            ex-r:hasLifeStage ex-p:Retired.
+
+    }
+}
+\end{lstlisting}
+
+\para
+\begin{tabular}{@{}cc@{}}
+    \toprule
+    name & \\ \midrule
+    Sofie \\ 
+    Harry \\ 
+    Fred  \\ \bottomrule
+\end{tabular}
+
+
+\para
+Additionally, SPARQL introduces FILTER. FILTER is a clause we can use to filter the result. Furthermore, the OPTIONAL clause allows us to construct an optional graph pattern that may be there, although the pattern is not required.
+
+\para
+Extracting every person's name and age if the person is under 18, in addition, to the father if the person has a father, would look like this and would yield   the following result:
+
+\para
+\begin{lstlisting}[frame=single, language=turtle, frame=none]
+PREFIX  ex-p:  <http://example.org/person/> 
+PREFIX ex-r:  <http://example.org/relation/> 
+
+SELECT ?name ?age ?father
+WHERE{
+    ?person ex-r:hasName ?name;
+            ex-r:hasAge ?age.
+
+    FILTER(?age < 18)
+    OPTIONAL{
+        ?person ex-r:hasFather ?father.
+    }
+}
+\end{lstlisting}
+
+\para
+\begin{tabular}{@{}ccc@{}}
+    \toprule
+    name & age & father \\ \midrule
+    Sofie & 17 & \\ 
+    Harry & 16 & http://example.org/person/Noha\\ \bottomrule
+\end{tabular}
+
+
+\para
+SPARQL 1.1\cite{SPARQL1.1} is an expansion to SPARQL, introducing, among other things, aggregation, negation, BIND, and property paths. Firstly, aggregation makes it possible to group the result with the clause GROUP BY. Furthermore, the HAVING-clause operates over grouped sets, resulting in the possibility to filter on the sets. Secondly, negation or the NOT EXISTS clause contains a graph pattern of RDF-tripels that should not be present in the graph pattern. Thirdly, SPARQL 1.1 offers BIND a way to bind a variable to a value. Lastly, property paths open up the opportunity to route specific paths of properties between two resources. There are numerous different types of property paths, such as SequentPath denoted with an /. Using the SequentPath, one can define several properties after each other with /. An example of usage of the SequentPath is to find all the names of all fathers, which we can write as \lstinline{?person ex-r:hasFather/ex-r:hasName ?fatherName} in the WHERE clause. The SPARQL 1.1 Query Language document presents a full table of all the varieties of properties paths.
+
+\para
+As an example of aggregation, the subsequent SPARQL query results in the number of persons in each life stage if there is more then 1 person in it. 
+
+\begin{lstlisting}[frame=single, language=turtle, frame=none]
+PREFIX  ex-p:  <http://example.org/person/> 
+PREFIX ex-r:  <http://example.org/relation/> 
+
+SELECT ?stage (COUNT(?person) AS ?persons)
+WHERE{
+    ?person ex-r:lifeStage ?stage.
+}
+GROUP BY ?stage
+HAVING COUNT(?person) > 1
+\end{lstlisting}
+    
+\para
+\begin{tabular}{@{}cc@{}}
+    \toprule
+    stage & persons  \\ \midrule
+    http://example.org/person/Teenager & 2 \\ \bottomrule
+\end{tabular}
+
+\para
+Additionally, an example of using BIND is finding the names of persons and their fathers and displaying how old the father was when the person was born.
+\begin{lstlisting}[frame=single, language=turtle, frame=none]
+PREFIX  ex-p:  <http://example.org/person/> 
+PREFIX ex-r:  <http://example.org/relation/> 
+
+SELECT ?name ?fatherName ?fathersAgeAtBirth
+WHERE{
+    _:person ex-r:hasName ?name;
+            ex-r:hasAge ?age;
+            ex-r:hasFather [ex-r:hasName ?fatherName;
+                            ex-r:hasAge ?fatherAge].
+    BIND(?fatherAge - ?age AS ?fathersAgeAtBirth)
+}
+\end{lstlisting}
+    
+\para
+\begin{tabular}{@{}ccc@{}}
+    \toprule
+    name & fatherName & fathersAgeAtBirth \\ \midrule
+    Harry & Noah & 31\\\bottomrule
+\end{tabular}
+
+
+
+\para
+In addition to SELECT, SPARQL offers several other queries:
+\begin{itemize}
+    \item \textbf{CONSTRUCT}: Returns a new RDF graph. The Construct clause contains a graph pattern that applies the variables from the WHERE clause to create the new RDF graph. 
+    \item \textbf{ASK}: Returns either yes or no. Yes, if the query pattern has a solution, no otherwise. 
+    \item \textbf{DESCRIBE}: Returns an RDF graph containing data about the resource. 
+    \item \textbf{DELETE}: Deletes everything that matches the given graph pattern 
+    \item \textbf{INSERT}: Works as CONSTRUCT but instead of making a new graph
+\end{itemize}
+Additionally, there are various other queries in the SPARQL 1.1 update language for RDF\cite{SPARQL1.1Update}, including the DELETE and INSERT queries. 
+
+
+ 
+
 \section{SHACL}
 
 \section{OTTR}

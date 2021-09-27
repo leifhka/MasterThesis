@@ -1,0 +1,11 @@
+PREFIX  ex-p:  <http://example.org/person/> 
+PREFIX ex-r:  <http://example.org/relation/> 
+
+SELECT ?name ?fatherName ?fathersAgeAtBirth
+WHERE{
+    _:person ex-r:hasName ?name;
+            ex-r:hasAge ?age;
+            ex-r:hasFather [ex-r:hasName ?fatherName;
+                            ex-r:hasAge ?fatherAge].
+    BIND(?fatherAge - ?age AS ?fathersAgeAtBirth)
+}

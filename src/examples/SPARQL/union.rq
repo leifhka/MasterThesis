@@ -1,0 +1,15 @@
+PREFIX  ex-p:  <http://example.org/person/> 
+PREFIX ex-r:  <http://example.org/relation/> 
+
+SELECT ?name
+WHERE{
+    {
+        ?person ex-r:hasName ?name;
+            ex-r:hasLifeStage ex-p:Teenager.
+
+    } UNION {
+        ?person ex-r:hasName ?name;
+            ex-r:hasLifeStage ex-p:Retired.
+
+    }
+}

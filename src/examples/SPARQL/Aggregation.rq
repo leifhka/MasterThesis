@@ -1,0 +1,9 @@
+PREFIX  ex-p:  <http://example.org/person/> 
+PREFIX ex-r:  <http://example.org/relation/> 
+
+SELECT ?stage (COUNT(?person) AS ?persons)
+WHERE{
+    ?person ex-r:lifeStage ?stage.
+}
+GROUP BY ?stage
+HAVING COUNT(?person) > 2
