@@ -8,4 +8,13 @@
 
 \section{Evaluation}
 
+\section{Extension of the OTTR type system}
+\subsection{Formal definition}
+OTTR needs one additional type when introducing Frog, namely \emph{the Function type}. The Function type takes in other types as arguments. In the \textbf{Function<T1,...,Tn>},\textbf{ T1,.....Tn} is the type of the function parameters, and \textbf{Tn} is the type of the functions return value. Every Function needs at least one argument, the return value. 
+
+\para
+A Function \textbf{Function$<P_1,...,P_n>$} is a subtype of \textbf{Function$<T_1,...,T_m>$} iff n == m, in other words, the length of the arguments are equal, and for an arbitrary \textit{i} \textbf{$P_i$} is either equal or a subtype of \textbf{$T_i$}.
+
 \section{Type checking}
+
+
