@@ -2,19 +2,65 @@
 \chapter{Design} %can also be named discussion
 
 \section{Syntax}
-\subsection{Human Readable Syntax}
+\begin{itemize}
+    \item short introduction referance to stOTTR and wOTTR (exmplained in the theory part)
+    \item use soruce \autocite[4]{SLKK_OTTR_2021} and \autocite[481-482]{SLKF_OTTR_2018} to argue for why frog should have two Syntax
+    \item both syntaxes will take information from 
+    \item argument for use of frog:functionCall
+    \begin{itemize}
+        \item easier 
+        \item less error-prone
+        \item one IRI can have several meanings, can be the literal IRI og refer to the function letting the user define the meaning will make it possible to write better and more concret error messages and not preform the wrong operation. There is no way for us to know if (fn:contcat fn:minus fn:divide) is a list of IRIS or a functioncall with fn:minus and fn:divide as arguments. Since lists and function calls in Frog will look equal 
+    \end{itemize}
+\end{itemize}
+
 
 \subsection{RDF Syntax}
+\begin{itemize}
+    \item example 
+    \item explenation of how the syntax is build up
+    \item defined by a set of SHACL shapes 
+    \item needs use of list to make sure that
+    \item a frog function can end-up in a base template, resulting in that we need to expand the function into RDF. 
+\end{itemize}
+
+\subsection{Human Readable Syntax}
+\begin{itemize}
+    \item example 
+    \item explenation of how the syntax is build up
+    \begin{itemize}
+        \item LISP 
+        \item OTTR 
+    \end{itemize}
+\end{itemize}
+
+\section{Extension of the OTTR type system}
+\begin{itemize}
+    \item Introduce the problem that Frog propoce with regards the OTTR type system 
+    \item A function can be a parameter to a template and a argument to an instance (only the IRI to the function, we need to know if the IRI should be interpreted as a function or an IRI)
+    \item Give a informal presentation of the frog type 
+    \item Refer to section about OTTR type system and how it is there to varify compatible typing and consisting typing. The newly introduced Function type also needs to ensure this. A function is compatible with  another function if it's a subtype of the other function.
+    \item A function F is a subtype of a function G if all the parameters on a given index in F is a supertype of the parameter on the same index in G. Additionaly the return type of F needs to be a subtype of G.
+\end{itemize}
+
+NB:Note that the Function type will be a subtype of 
+
+\subsection{Formal definition}
+OTTR needs one additional type when introducing Frog, namely \emph{the Function type}. The Function type takes in other types as arguments. In the \textbf{Function<$T_1$,...,$T_n$>},\textbf{ $T_1$,...,$T_{n - 1}$} is the type of the function parameters, and \textbf{$T_n$} is the type of the functions return value. Every Function needs at least one argument, the return value. 
+
+\para
+A Function \textbf{Function$<P_1,...,P_n>$} is a subtype of \textbf{Function$<T_1,...,T_m>$} iff n == m, in other words, the length of the arguments are equal, and for an arbitrary \textit{i} between 1 and n - 1  \textbf{$P_i$} is supertype of \textbf{$T_i$}. Futheremore \textbf{$P_n$} needs to be a subtype of \textbf{$T_m$}
+
+\subsection{The Function type in RDF Frog}
+
+\subsection{The Function type in }
+
+\section{Type checking}
+
+\section{Validation}
 
 \section{Evaluation}
 
-\section{Extension of the OTTR type system}
-\subsection{Formal definition}
-OTTR needs one additional type when introducing Frog, namely \emph{the Function type}. The Function type takes in other types as arguments. In the \textbf{Function<T1,...,Tn>},\textbf{ T1,.....Tn} is the type of the function parameters, and \textbf{Tn} is the type of the functions return value. Every Function needs at least one argument, the return value. 
-
-\para
-A Function \textbf{Function$<P_1,...,P_n>$} is a subtype of \textbf{Function$<T_1,...,T_m>$} iff n == m, in other words, the length of the arguments are equal, and for an arbitrary \textit{i} \textbf{$P_i$} is either equal or a subtype of \textbf{$T_i$}.
-
-\section{Type checking}
+\subsection{Evaluation in OTTR}
 
 
