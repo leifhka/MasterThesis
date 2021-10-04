@@ -1,0 +1,19 @@
+@prefix  ex-p:  <http://example.org/person/> . 
+@prefix ex-r:  <http://example.org/relation/> . 
+@prefix sh:	<http://www.w3.org/ns/shacl#> .
+@prefix xsd:	<http://www.w3.org/2001/XMLSchema#>.
+
+ex-p:PersonShape a sh:NodeShape;
+    sh:targetClass ex-p:Person;
+    sh:property [sh:path ex-r:hasAge;
+                sh:nodeKinde sh:Literal;
+                sh:dataType xsd:postiveInteger; 
+                sh:maxCount 1;
+                sh:minCount 1;
+                sh:maxInclusive 130;
+                sh:name "Age";
+                sh:message "Every person needs a age that is between 0 and 130"],
+                [sh:path ex-r:hasName;
+                sh:minCount 1;
+                sh:nodeKinde sh:Literal;
+                sh:dataType xsd:string].

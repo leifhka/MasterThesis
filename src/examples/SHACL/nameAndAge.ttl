@@ -1,0 +1,13 @@
+@prefix  ex-p:  <http://example.org/person/> . 
+@prefix ex-r:  <http://example.org/relation/> . 
+@prefix sh:	<http://www.w3.org/ns/shacl#> .
+
+ex-p:PersonShape a sh:NodeShape;
+    sh:targetClass ex-p:Person;
+    sh:property [sh:path ex-r:hasAge; 
+                sh:maxCount 1;
+                sh:minCount 1;
+                sh:name "Age";
+                sh:message "Every person needs a age"],
+                [sh:path ex-r:hasName;
+                sh:minCount 1].

@@ -122,7 +122,7 @@ WHERE{
     \toprule
     name & age & father \\ \midrule
     Sofie & 17 & \\ 
-    Harry & 16 & http://example.org/person/Noha\\ \bottomrule
+    Harry & 16 & http://example.org/person/Noah\\ \bottomrule
 \end{tabular}
 
 
@@ -185,12 +185,99 @@ In addition to SELECT, SPARQL offers several other queries:
     \item \textbf{DELETE}: Deletes everything that matches the given graph pattern 
     \item \textbf{INSERT}: Works as CONSTRUCT but instead of making a new graph
 \end{itemize}
-Additionally, there are various other queries in the SPARQL 1.1 update language for RDF\cite{SPARQL1.1Update}, including the DELETE and INSERT queries. 
-
-
- 
+Additionally, there are various other queries in the SPARQL 1.1 update language for RDF\cite{SPARQL1.1Update}, including the DELETE and INSERT queries.  
 
 \section{SHACL}
+
+The RDF Data Shape Working group had a goal
+\begin{quotation}
+    ...to produce a language for defining structural constraints on RDF graphs. In the same way that SPARQL made it possible to query RDF data, the product of the RDF Data Shapes WG will enable the definition of graph topologies for interface specification, code development, and data verification.\autocite{Shape_working_group}
+\end{quotation}
+Which resulted in, among other things, the Shape Constraint Language(SHACL)\autocite{SHACL} . SHACL consists of two main parts SHACL core and SHACL SPARQL; in this section, we will solely focus on the foremost. SHACL takes in two inputs, an RDF data graph and a shape graph also written in RDF. Shapes are "conjunctions of constraints that a node most satisfy."\autocite[FIND PAGE]{SHACL_BOOK}. SHACL goes through the data graph and checks if the constraints provided in the shape graph are satisfied, returning a validation report in RDF, which primarily contains the property sh:conforms linking the report to a boolean value. The boolean value is true if the graph does conform to the shapes, otherwise false. 
+
+\para 
+SHACL partitions the shapes into two main types node shape and property shape. Firstly, a node shape consists of constraints directed at a focus node.  A focus node or target can be specified in specific ways, targeting all instances of a particular class\footnote{Denoted with the property sh:targetClass}, all nodes that are the subject\footnote{Denoted with the property sh:targetSubjectOf} or object\footnote{Denoted with the property sh:targetObjectOf} of a predicate, or, lastly, directly pointing to a node\footnote{Denoted with the property sh:targetNode}. Furthermore, a node shape usually contains one or more property shapes. A property shape is a constraint directed towards the values that a focus node can reach through a specified property or property path\footnote{Property paths in SHACL are a subset of the property path in SPARQL. The full list of property graphs are available in the SHACL W3C recommendation document\autocite{SHACL}}.  SHACL has the property sh:path to target the property or property path we are after.  
+
+\para
+Moreover, SHACL makes it possible to restrict the maximum and minimum numbers of distinct nodes often used to constrain how many relations of the path a focus node can have. 
+
+\para
+In the next two examples, SHACL performs validation on the following graph:
+\begin{lstlisting}[frame=single, language=turtle, frame=none]
+    @prefix  ex-p:  <http://example.org/person/> . 
+    @prefix ex-r:  <http://example.org/relation/> . 
+
+    ex-p:Noah a ex-p:Person;
+        ex-r:hasAge 47;
+        ex-r:hasName "Noah".
+
+    ex-p:Fred a ex-p:Person;
+        ex-r:hasAge 233352;
+        ex-r:hasName "Fred".
+\end{lstlisting}
+
+\begin{example}
+A SHACL shape that validates that every person has a name and exactly one age
+\end{example}
+
+\begin{lstlisting}[frame=single, language=turtle, frame=none]
+    @prefix  ex-p:  <http://example.org/person/> . 
+    @prefix ex-r:  <http://example.org/relation/> . 
+    @prefix sh:	<http://www.w3.org/ns/shacl#> .
+
+    ex-p:PersonShape a sh:NodeShape;
+        sh:targetClass ex-p:Person;
+        sh:property [sh:path ex-r:hasAge; 
+                    sh:maxCount 1;
+                    sh:minCount 1;
+                    sh:name "Age";
+                    sh:message "Every person needs a age"],
+                    [sh:path ex-r:hasName;
+                    sh:minCount 1].
+\end{lstlisting}
+Resulting in the following validation report:
+\begin{lstlisting}[frame=single, language=turtle, frame=none]
+    [] a sh:ValidationReport;
+        sh:conforms true .
+\end{lstlisting}
+
+\para
+Furthermore, SHACL contains constraint components that define a set of values a node can have. These components can, among other things, specify that the node needs to be a blank node, an IRI, have a particular value, be an instance of a class, or be a literal. We can also specify what kind of data type the literal must be. Additionally, SHACL provides us with several built-in constraint components for the different data types, such as sh:minInclusive and sh:maxInclusive for numbers and  sh:pattern and sh:maxLength for strings.
+
+\begin{example}
+A SHACL shape validates that every person has exactly one age with a positive integer no bigger than 130.  Additionally,  that there is at least a name that is a string.
+\end{example}
+
+\begin{lstlisting}[frame=single, language=turtle, frame=none]
+    @prefix  ex-p:  <http://example.org/person/> . 
+    @prefix ex-r:  <http://example.org/relation/> . 
+    @prefix sh:	<http://www.w3.org/ns/shacl#> .
+
+    ex-p:PersonShape a sh:NodeShape;
+        sh:targetClass ex-p:Person;
+        sh:property [sh:path ex-r:hasAge; 
+                    sh:maxCount 1;
+                    sh:minCount 1;
+                    sh:name "Age";
+                    sh:message "Every person needs a age"],
+                    [sh:path ex-r:hasName;
+                    sh:minCount 1].
+\end{lstlisting}
+Resulting in the following validation report:\footnote{Note that we can make a personalised sh:resultMessage with the use of sh:message}
+\begin{lstlisting}[frame=single, language=turtle, frame=none]
+    [] a sh:ValidationReport;
+        sh:conforms false;
+        sh:result [
+            a sh:ValidationResult ;
+            sh:resultSeverity sh:Violation ;
+            sh:sourceConstraintComponent sh:MaxInclusiveConstraintComponent ;
+            sh:focusNode ex-p:Fred ;
+            sh:value 233352 ;
+            sh:resultPath ex-r:hasAge ;
+            sh:resultMessage "Every person needs a age that is between 0 and 130" ;
+        ] .        
+\end{lstlisting}
+The validation report returns a validation since ex-p:Fred has an ancient age.
 
 \section{OTTR}
 \label{OTTR}
