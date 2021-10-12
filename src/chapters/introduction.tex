@@ -22,6 +22,25 @@ Constructing the graph containing the data about the 100 persons would now only 
 \para
 Nevertheless, the template expanded from the CSV file may require additional information that the file naturally would not bear, such as the URI, to identify each person uniquely. The consequence is that each domain expert that utilises the template needs to add the URIs manually or use the mapping.  Consequently, the Separation of design and content benefit has an opportunity for improvement since a more suitable solution would have been that the template in itself could produce the URIs from, for instance, using the social security number. The templates producing the URIs would be especially beneficial if multiple files were used to create the instances since the domain experts are obligated to supplement the data in all files.  Therefore, additional benefits to producing the URI in the template instead of each file would be that OTTR is less error-prone and improve the don't repeat yourself principle.
 
+\para 
+Therefore, we propose a small programing language for OTTR, named Frog.  Frog's principal aim is to manipulate terms in the OTTR template definition. OTTR will execute the function calls in the expansion, making it feasible to use the Frog manipulated terms in the triple's subject, predicate, and object position. In the case of the person template, utilising Frog will make it achievable to make a URI from the social security number. Considering the making of the URIs is only produced in the template definition and not in each data source, we believe Frog will improve the Separation of design and content as the domain expert now does not need to account for the person's unique URIs. In addition to proposes improvements on the don't repeat yourself principle as Frog may cause less repetition, resulting in OTTR being less error-prone. 
+
+\para
+However, there are several other use-cases where adding Frog to OTTR will be beneficial, such as storing information about one domain that may have numerous representations for one thing. Such as the domain regarding weather and temperatures. Conceptualise that we want to store information about the weather, including the temperatures. We want to use several sources for the data, American and European. As a result, some the source contains the degrees in Celcius and others in Fahrenheit. We, however, want our RDF graph only containing the degrees in Celcius. With OTTR and Frog, we can make a function that converts Fahrenheit to Celcius. Creating two templates, one for the degree in Celcius that captures how we want the finished graph to look, and one for the degree in Fahrenheit that only consists of an instance of the Celcius template but where the temperature argument is a function call of the conversion function. 
+
+
+\para
+Solving this issue without Frog would require the domain expert to either make a script or use an existing one to transform the values or convert the degrees in the mappings from file to instances.  However, having the domain expert produce or find an existing script will interfere with OTTRs proposed benefit of Separation of design and content. Secondly, utilising mappings for the conversion may interfere with the do not repeat yourself principle, as different types of files need unique mappings, resulting in the conversion have to be written for each mapping. 
+
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.6]{motivation.jpg}
+    \caption{The first graph shows a natural workflow utilises OTTR, where the computations are preformed in or on the files and the mappings. The second graph shows the natural workflow using OTTR with Frog, where the computations are preformed in the templates}
+    \label{fig:MOTIVATION}
+\end{figure}
+
+
 \section{Problem Statment}
 
 \section{Scoop}

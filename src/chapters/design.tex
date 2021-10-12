@@ -51,6 +51,9 @@ OTTR needs one additional type when introducing Frog, namely \emph{the Function 
 \para
 A Function \textbf{Function$<P_1,...,P_n>$} is a subtype of \textbf{Function$<T_1,...,T_m>$} iff n == m, in other words, the length of the arguments are equal, and for an arbitrary \textit{i} between 1 and n - 1  \textbf{$P_i$} is supertype of \textbf{$T_i$}. Futheremore \textbf{$P_n$} needs to be a subtype of \textbf{$T_m$}
 
+\subsection{The type of a function call}
+The same as the return value.
+
 \subsection{The Function type in RDF Frog}
 
 \subsection{The Function type in }
@@ -58,11 +61,42 @@ A Function \textbf{Function$<P_1,...,P_n>$} is a subtype of \textbf{Function$<T_
 \section{Type checking}
 
 \section{Validation}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4]{validationFlow.jpg}
+    \caption{The flow of validating functions}
+    \label{fig:LC-explenations}
+\end{figure}
+
+OTTR performs validation of the templates and instances before expanding the instances. The validation ensures the creator that the templates and instances are syntax correct, that instances refer to an existing template and that the terms provided as an argument for an instance are compatible with the templates parameter types. Therefore, when utilising a frog function in an instance, OTTR also needs to ensure the creator of the templates and instances that the function's return value is compatible with the type of the given parameter in the template. In conclusion, the end goal of the validation of Frog is to be certain that a function call returns a compatible term. 
+
+\para
+Since Frog is a typed language and states the return type, the natural solution would be to check that the function's return type is compatible with the template given parameter type. However, to perform this validation, OTTR needs to validate several other parts of the function and the function call before confirming that the return value is compatible. Firstly, OTTR needs to verify that the function call utilises an exciting function; if the function does not exist, there is no need to proceed, as finding the return type of an unknown function is impossible. Secondly, OTTR needs to validate that the function call has the right amount of arguments and that the arguments are compatible with the function's parameters. Lastly, we can then validate the return value. 
+
+\para
+However, stating that the functions return type is a particular type does not necessarily mean that the value returned by the function call is of that type. To guarantee the correctness of the return type, Frog must validate the body of the function. As the function's body is a function call, with possible function calls as arguments, Frog needs to validate the function's body in the same manner as OTTR did with the function call in the instance, with one addition. Frog needs to validate that every parameter used in the function body is declared in the function's definition. Performing validation with an undeclared parameter is unfishable, in addition to causing problems in the execution. 
+
+\para
+As function calls can contain arguments which again is a function call regardless if it is in the in function body or the body of the function, OTTR and FROG needs to verify that the return type is compatible with the parameter type of the function's parameter. Nevertheless, if Frog validates every made function, and no errors have accrued, we know that every function we can use will return the correct value. Therefore, we propose that Frog first validates all of the functions, guaranteeing that every function returns a value of the type stated by the function before it validates the function calls in the OTTR templates. 
+
+\para
+Validating a Frog function would be preform in several steps. The first natural step is to validate that every function call in the function body uses an existing function and that every used parameter is defined. Furthermore, Frog needs to confirm that every function call in the body has the right amount of arguments and that every argument has the correct type. If an argument is a function call in itself, we assume that the function's return type is correct and check if this return type is compatible with the parameter. We can assume that the function calls return type is correct because the next step is to validate precisely this. 
 
 \section{Evaluation}
+\begin{itemize}
+    \item Lazy evaluation
+    \item Frog is pure 
+    \item Ensure no evaluation of unused functions 
+\end{itemize}
+
 
 \subsection{Evaluation in OTTR}
 \begin{itemize}
+    \item Lazy evaluation -> make sure of that OTTR does not evalute function calls that are needed to expand the template and only once (memorization)
+    \item Only evalute when the function reaches a base template
+    \item An instance can branch a argument to several base templates 
+    \item OTTR gives a warning when using unused variables however it is still possible
+    \item None in to base functions 
     \item 
 \end{itemize}
 
