@@ -53,6 +53,22 @@ commentstyle=\color{gray}
     backgroundcolor=\color{white},
 }
 
+\lstdefinelanguage{frog}
+{
+    columns=fullflexible,
+    keywordstyle=\color{black},
+    morekeywords={@prefix},
+    morecomment=[l]{\#},
+    tabsize=4,
+    alsoletter={-?}, % allowed in names
+    morecomment=[s][\color{black}]{<}{>},
+    basicstyle=\ttfamily\color{black},
+    %numberstyle=\color{black},
+    morestring=[b][\color{black}]\",
+    backgroundcolor=\color{white},
+}
+
+
 \addbibresource{bibliography.bib}
 
 \title{Frog: Functions for ontologies}

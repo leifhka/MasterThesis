@@ -1,0 +1,4 @@
+@prefix ex: <http://example.xyz/ns/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn: <http://ns.frog.ottr.xyz/0.1/function/> .
+@prefix : <http://ns.frog.ottr.xyz/0.1#> .

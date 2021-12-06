@@ -1,0 +1,8 @@
+ex:CtoF a :Function;
+    :type [:returnType xsd:decimal; :parameterTypes (xsd:decimal)]
+    :def (:lambda (_:fahrenheit)
+        (:functionCall fn:times (:typeVars xsd:decimal)
+            (:functionCall fn:minus (:typeVars xsd:decimal) _:fahrenheit 31)
+            (:functionCall fn:divide (:typeVars xsd:decimal) 5 9)
+        )
+    ).

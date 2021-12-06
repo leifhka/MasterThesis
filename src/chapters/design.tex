@@ -1,7 +1,71 @@
 
 \chapter{Design} %can also be named discussion
+OTTR proposes various benefits, such as abstraction and Separation of design and content. However, we suggest that appending a programing language, Frog, that makes it feasible to manipulate terms to OTTR will strengthen several benefits, as previously discussed.  In this chapter, we will discuss how the design of Frog.
+
+\para 
+In short, Frog will be a purely typed functional programming language, resulting in Frog only allowing pure functions. The advantage of Frog being pure is that Frog can utilise memorisation on the functions. Section X (Evaluation) discusses why memorisation is an advantage in Frog. In addition to being pure, Frog will additionally be a typed language, resulting in the function explicitly stating the type of its parameters and return type. OTTR requires Frog to be typed as OTTR needs to know the type of a given term to perform validation of templates and instances, which OTTR performs before expanding the instances, implying that Frog must confirm a Functions return type. Section Y (Validation) further elaborates on the necessity of Frog being typed. 
+
+\para
+The following prefixes will be utlised in the examples of this chapter:
+\lstinputlisting[language=turtle, firstnumber = 1]{examples/Frog/prefixesDesign.ttl}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.45]{programFlowDesign.jpg}
+    \caption{The basic flow of the program}
+    \label{fig:basic_program_flow}
+\end{figure}
+
+\section{Overview}
+The addition of Frog to OTTR will introduce two new possibilities. Firstly, to make a personalised function that manipulated terms, and lastly, use these functions in the template body, named a function call. A function call will execute a function for some arguments, replacing the function call with a term. Therefore, a function call is treated as a term in OTTR and Frog, where the type is the return type of the function the function call executes. In addition, OTTR and Frog will handle a Frog function as a term. However, there is no natural type for a Frog function; as a result, we introduce a new type to the OTTR type system, the Function type. Section \ref{extension_ottr_type} goes in-depth on the new Function type. 
+
+\para
+A Frog function is constructed in two parts, the function head and the function body. The function body defines what the function does under execution and consist of only one element, a function call. On the other hand, the function head specifies the function IRI, parameters, return type and the generic arguments. The function IRI is an IRI to identify the function uniquely; in other words, the function name. Furthermore, the function body can consist of parameters. However, it is feasible to make a function containing an empty set of parameters. As Frog is typed, a parameter consists of a variable and a type. The variable represents a constant, which the function body can utilise as an argument or a function if the type of the variable is consistent with a function type. Moreover, the type is the type of the variable, which Frog utilises to perform validation.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.45]{FunctionAndFunctionCall.jpg}
+    \caption{The strucure of functions and function calls}
+    \label{fig:functionCall_and_function}
+\end{figure}
+
+\para
+Additionally, the Function head specifies a possibly empty set of generic parameters, consisting of a variable and a type, much like an ordinary parameter. However, in this case, the variable depicts a type, and the type represents a subtype relationship between the variable and the type. A generic variable can be occurring in a or as a parameter type, a return type and a generic argument in the function body. Lastly, the function head specifies the return type, representing the type of the value that the function returns. The return type needs to be compatible with the return type of the function body. 
+
+\para
+Furthermore, a function call consists of a function IRI, arguments and generic arguments. The function IRI defines which functions for a set of arguments and generic arguments Frog should execute. An argument can be a constant or parameter variable, which must be compatible with the function's associated parameter. In contrast, a generic argument can either be a generic variable or a type compatible with the function's affiliated generic parameter. Note that both the arguments and generic arguments may be empty. Figure \ref{fig:functionCall_and_function} is a visual representation of a function and a function call structure. 
+
+\begin{figure}
+    \centering
+    \begin{minipage}{.5\textwidth}
+      \centering
+      \includegraphics[scale=0.3]{term.png}
+      \caption{Term}
+      \label{fig:term}
+    \end{minipage}%
+    \begin{minipage}{.5\textwidth}
+      \centering
+      \includegraphics[scale=0.3]{type.png}
+      \caption{frog types}
+      \label{fig:type}
+    \end{minipage}
+\end{figure}
+
+\para
+Compared to OTTR, Frog's terms will be equal since functions and function calls will become valid terms in OTTR; consequently, functions and function calls valid terms in Frog. Figure \ref{fig:term} illustrates what a term is in Frog. On the other hand, types have a difference between OTTR and Frog, namely generic types. Generic types will only be available in Frog. Hence the types in Frog will consist of all the types in OTTR in addition. Figure \ref{fig:type} depicts a Frog type. Note that when we talk about types in this chapter, we talk about Frog types if not specified.
+
+\para
+Furthermore, there are two types of functions in Frog, base function and a Frog function. However, a Frog user will only make frog functions but can utilise both base functions and Frog functions the same way in function calls. Base functions will be a combination of XPath[source link] functions, which will operate on some of the base types, and built-in java functions that will work on the complex types, such as the list types. Indifference to a normal Frog function, the function body of a base function will not contain a function call, but a rule which is an IRI reference either the XPath function or the built-in java function. An example of base functions are operators, such as addition and divide. 
 
 \section{Syntax}
+As introduced in section \ref{OTTR}, OTTR has two different serialisations, wOTTR and stOTTR. As described by Skjæveland et al. stOTTR is made to be a serialisation of OTTR, which is easy for humans two read and write, in addition to being compact\autocite[4]{SLKK_OTTR_2021}. On the other hand, the wOTTR serialisation offers the benefit of leveraging the existing W3C stack, in addition to tools for developing, publishing and maintaining templates\autocite[481-482]{SLKF_OTTR_2018}. For the same reasons, we propose that Frog also have two serialisations, one human-readable syntax that is compact and easy to read and write and one written in RDF for publishing purposes.
+
+\para 
+A function call will have a similar syntax in RDF and the Human Readable syntax. LISP languages such as Scheme have inspired the syntax of the function calls, implying that the function IRI and the arguments are in the same list. On the one hand, the advantage of using function calls as a list of function IRI and arguments is that lists are an existing and known data structure in RDF. On the other hand, the disadvantage of utilising lists as function calls is that in the RDF syntax, a list may have several meanings \lstinline{(fn:plus 2 3)} can be the list with the elements \lstinline{fn:plus}, \lstinline{2}, and \lstinline{3} or the function call on the fn:plus function that will add the numbers 2 and 3 together. Section \cite{RDF_syntax} further discusses the issue and present a solution.
+
+\para 
+The following two subsections will present the two different syntaxes in detail. They will both present an example of the function that takes a degree in Fahrenheit and returns the degree converted to Celcius. Equal to the following function in java. 
 \begin{itemize}
     \item short introduction referance to stOTTR and wOTTR (exmplained in the theory part)
     \item use soruce \autocite[4]{SLKK_OTTR_2021} and \autocite[481-482]{SLKF_OTTR_2018} to argue for why frog should have two Syntax
@@ -16,15 +80,50 @@
 
 
 \subsection{RDF Syntax}
+\label{RDF_syntax}
+
+\begin{figure}[b]
+    \lstinputlisting[language=turtle, firstnumber = 1]{examples/Frog/rdfSyntaxExample.ttl}
+    \caption{An example of a Frog function that converts Fahrenheit to Celcius using the RDF turtle syntax}
+    \label{fig:rdf_example}
+\end{figure}
+
+\para
+The RDF syntax is written in the turtle serialisation and is as OTTR defined by a set of SHACL shapes expressions. Frogs RDF syntax will take a lot from the wOTTR serialisation of OTTR, for instance, the definition of terms and types, meaning that these will be equal in Frog and wOTTR. 
+
+\para
+The syntax is built up of the following parts: 
+
+\begin{itemize}
+    \item \lstinline{:Function} : For Frog to interpret an IRI as a function, we need to explicitly state that the type of the IRI is a Function. 
+    \item \lstinline{:type} defines the type of the function, and is a relation between a function IRI and a blank node representing the type.
+    \item \lstinline{:returnType} defines a function's return type and relates the blank node representing the type to a type. 
+    \item \lstinline{:parameterTypes} defines the types of the parameters and relates the blank node representing a potentially empty list containing the types to the parameters.
+    \item \lstinline{:def}
+    \item \lstinline{:lambda}
+    \item \lstinline{:functionCall} defines that Frog should interpret the list as a function call. Need to be placed in the start at the list. 
+    \item \lstinline{:varType} defines that Frog should interpret the list as a list of generic arguments. \lstinline{:varType} need to be placed at the start of the list. If the list of generic arguments is present Frog demands the list to be right after the function IRI. 
+  
+\end{itemize}
+
+\para 
+IDEAS:
 \begin{itemize}
     \item example 
     \item explenation of how the syntax is build up
     \item defined by a set of SHACL shapes 
-    \item needs use of list to make sure that
-    \item a frog function can end-up in a base template, resulting in that we need to expand the function into RDF. 
+    \item needs use of list to make sure that a frog function can end-up in a base template, resulting in that we need to expand the function into RDF. 
+    \item a RDF list can now have several meanings it can be a list og terms, a function call, or a list of generic arguments. We need to somehow seprete what is what therefore we make the list which is functionCall with :functionCall, :typeVars for generic argument lists and nothing for normal list as they need to have the same syntax as the rest of the RDF "world" 
 \end{itemize}
 
 \subsection{Human Readable Syntax}
+
+\begin{figure}[h]
+    \lstinputlisting[language=frog, firstnumber = 1]{examples/Frog/hrsExample.frog}
+    \caption{An example of a Frog function that converts Fahrenheit to Celcius using the Human Readable syntax}
+    \label{fig:hrs_example}
+\end{figure}
+
 \begin{itemize}
     \item example 
     \item explenation of how the syntax is build up
@@ -35,6 +134,7 @@
 \end{itemize}
 
 \section{Extension of the OTTR type system}
+\label{extension_ottr_type}
 \begin{itemize}
     \item Introduce the problem that Frog propoce with regards the OTTR type system 
     \item A function can be a parameter to a template and a argument to an instance (only the IRI to the function, we need to know if the IRI should be interpreted as a function or an IRI)
@@ -44,6 +144,12 @@
 \end{itemize}
 
 NB:Note that the Function type will be a subtype of 
+
+\para
+Section X (4.1) mentions that Frog introduces two new terms, functions and function calls. The function call term will not cause a problem since it, as previously mentioned, gets the type of the function it executes return type. However, we have not specified the type of a function term and the reason for that is that the function term introduces a new type, the function type.  
+
+\para
+The motivation to introduce functions as terms and with an own type is several. Firstly, we wish for Frog to be a high-order programming language; as a result, Frog needs to be able to take in functions as parameters and as the return value.  With the premise that Frog is a high-order language and a typed language, a function needs its type. Secondly, adding a function type makes it possible to use functions as parameters and arguments in  OTTR templates. Lastly, when a function is used as a term, it is represented with its function IRI. Therefore fn:plus could be interpreted as an IRI or the function that takes in two numbers and add them together. 
 
 \subsection{Formal definition}
 OTTR needs one additional type when introducing Frog, namely \emph{the Function type}. The Function type takes in other types as arguments. In the \textbf{Function<$T_1$,...,$T_n$>},\textbf{ $T_1$,...,$T_{n - 1}$} is the type of the function parameters, and \textbf{$T_n$} is the type of the functions return value. Every Function needs at least one argument, the return value. 
@@ -57,6 +163,9 @@ The same as the return value.
 \subsection{The Function type in RDF Frog}
 
 \subsection{The Function type in }
+
+\subsection{Generic type}
+Only a part of the frog type system, and is not possible to use in OTTR. Lets us set types as variables that needs to be set in the function call. The function needs to define what type the generic type is a subtype of. \textbf{Why not use LUB ?} as previusly mention LUB lets ut set a type that can be the Least Upper Bound meaning that LUB<xsd:integer> is compatible with all of subtypes of xsd:integers. So semanticly speeking will except the same types of terms. However the dicidvantage of using LUB in FROG is that another function that utilieses a function which return LUB<xsd:integer> may only except on of its subtypes, resulting in us having to convert the value, this may also result in more errors compared to generic types. The reason for this is that more of the errors will accure during the runtime compared to generics that will catch more of the errors in the type checing part. \textbf{Why not make it possible to generate functions}: possible to make a ottr template to define the different generic functions, then the user could have used an import with the ottr instance that gave the new function a name and type. Since base functions are written in rdf the genration template would make a RDF base function. However the dicidvantage with this solution is the naming part. 
 
 \section{Type checking}
 
@@ -87,6 +196,11 @@ Validating a Frog function would be preform in several steps. The first natural 
     \item Lazy evaluation
     \item Frog is pure 
     \item Ensure no evaluation of unused functions 
+    \item When to we reach execution 
+    \item \begin{itemize}
+        \item 1. a base function on the form of an XPath function since we the external libary need the values (and not the function) to be able to execute. Base functions that are specially made for frog will only execute the parts needed for instance the if-function will only execute the first argument that result in a boolean. If the two next arguments are function calls it will only return the function call in it self.
+        \item 2. a function call is used to find the name of the function 
+    \end{itemize}
 \end{itemize}
 
 
@@ -99,5 +213,9 @@ Validating a Frog function would be preform in several steps. The first natural 
     \item None in to base functions 
     \item 
 \end{itemize}
+
+
+\section{Execution}
+
 
 
