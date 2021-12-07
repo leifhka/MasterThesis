@@ -59,25 +59,27 @@ Compared to OTTR, Frog's terms will be equal since functions and function calls 
 Furthermore, there are two types of functions in Frog, base function and a Frog function. However, a Frog user will only make frog functions but can utilise both base functions and Frog functions the same way in function calls. Base functions will be a combination of XPath[source link] functions, which will operate on some of the base types, and built-in java functions that will work on the complex types, such as the list types. Indifference to a normal Frog function, the function body of a base function will not contain a function call, but a rule which is an IRI reference either the XPath function or the built-in java function. An example of base functions are operators, such as addition and divide. 
 
 \section{Syntax}
-As introduced in section \ref{OTTR}, OTTR has two different serialisations, wOTTR and stOTTR. As described by Skjæveland et al. stOTTR is made to be a serialisation of OTTR, which is easy for humans two read and write, in addition to being compact\autocite[4]{SLKK_OTTR_2021}. On the other hand, the wOTTR serialisation offers the benefit of leveraging the existing W3C stack, in addition to tools for developing, publishing and maintaining templates\autocite[481-482]{SLKF_OTTR_2018}. For the same reasons, we propose that Frog also have two serialisations, one human-readable syntax that is compact and easy to read and write and one written in RDF for publishing purposes.
+Section 3.5 introduced OTTRs two serialisations, wOTTR and sTOTTR. As described by Skjæveland et al., stOTTR is made to be a serialisation of OTTR, which is easy for humans two read and write, in addition to being compact\autocite[4]{SLKK_OTTR_2021}. On the other hand, the wOTTR serialisation offers the benefit of leveraging the existing W3C stack, in addition to tools for developing, publishing and maintaining templates\autocite[481-482]{SLKF_OTTR_2018}. Consequently, we propose that Frog also provides two serialisations.
+
+\para
+As a consequence of Frog being a part of OTTR and the benefits that wOTTR offers, we propose Frog likewise have an RDF serialisation. Since wOTTR already benefits from leveraging the existing W3C stack, we need to preserve this benefit when adding Frog. For wOTTR to preserve the property of leveraging the W3C stack, everything wOTTR utilises, in this case, Frog, should a possibility of preserving it.  Additionally, wOTTR is the proposed serialisation of OTTR for publishing temp. Hence it will be reasonable to assume when publishing OTTR templates in wOTTR that the Frog functions utilised by the templates are published among the templates in the same format.  
+
+\para
+However, utilising RDF comes with its challenges as RDF requires the RDF Frog serialisation to store the information about the functions in triples; Resulting in much metadata that is not necessarily needed for a human to understand. Writing and reading the metadata may also be tedious, mainly because it requires much repetition when writing several functions. The problem of repetition in RDF is a known one as this is one of the problems that Frog tries to improve. Hence one solution could be to make a template to build a function. However, we propose a second compact serialisation, such as stOTTR, that is easy to read and write. 
+
+\para
+We suggest that there is a significant benefit to making an own human-readable serialisation of Frog compared to using an OTTR template to produce the function in RDF, besides it is nice to have a syntax for Frog that matches stOTTR, namely that the serialisation will make it easier for programmers that do not have knowledge of OTTR or RDF to make and produce functions that the OTTR templates can utilise, which means that the serialisation opens of for more people to make functions. However, this claim is only valid if the syntax is easy to learn. Hence, we need to make a syntax that is relatively easy to learn for an experienced programmer. 
+
+\para 
+To summarise, Frog will, as OTTR, have two serialisations, one written in RDF and one more compact and easy to read and write. 
+
+\subsection{OTTR seralisations compared to Frog (?)}
 
 \para 
 A function call will have a similar syntax in RDF and the Human Readable syntax. LISP languages such as Scheme have inspired the syntax of the function calls, implying that the function IRI and the arguments are in the same list. On the one hand, the advantage of using function calls as a list of function IRI and arguments is that lists are an existing and known data structure in RDF. On the other hand, the disadvantage of utilising lists as function calls is that in the RDF syntax, a list may have several meanings \lstinline{(fn:plus 2 3)} can be the list with the elements \lstinline{fn:plus}, \lstinline{2}, and \lstinline{3} or the function call on the fn:plus function that will add the numbers 2 and 3 together. Section \cite{RDF_syntax} further discusses the issue and present a solution.
 
 \para 
 The following two subsections will present the two different syntaxes in detail. They will both present an example of the function that takes a degree in Fahrenheit and returns the degree converted to Celcius. Equal to the following function in java. 
-\begin{itemize}
-    \item short introduction referance to stOTTR and wOTTR (exmplained in the theory part)
-    \item use soruce \autocite[4]{SLKK_OTTR_2021} and \autocite[481-482]{SLKF_OTTR_2018} to argue for why frog should have two Syntax
-    \item both syntaxes will take information from 
-    \item argument for use of frog:functionCall
-    \begin{itemize}
-        \item easier 
-        \item less error-prone
-        \item one IRI can have several meanings, can be the literal IRI og refer to the function letting the user define the meaning will make it possible to write better and more concret error messages and not preform the wrong operation. There is no way for us to know if (fn:contcat fn:minus fn:divide) is a list of IRIS or a functioncall with fn:minus and fn:divide as arguments. Since lists and function calls in Frog will look equal 
-    \end{itemize}
-\end{itemize}
-
 
 \subsection{RDF Syntax}
 \label{RDF_syntax}
@@ -113,7 +115,13 @@ IDEAS:
     \item explenation of how the syntax is build up
     \item defined by a set of SHACL shapes 
     \item needs use of list to make sure that a frog function can end-up in a base template, resulting in that we need to expand the function into RDF. 
-    \item a RDF list can now have several meanings it can be a list og terms, a function call, or a list of generic arguments. We need to somehow seprete what is what therefore we make the list which is functionCall with :functionCall, :typeVars for generic argument lists and nothing for normal list as they need to have the same syntax as the rest of the RDF "world" 
+    \item a RDF list can now have several meanings it can be a list og terms, a function call, or a list of generic arguments. We need to somehow seprete what is what therefore we make the list which is functionCall with :functionCall, :typeVars for generic argument lists and nothing for normal list as they need to have the same syntax as the rest of the RDF "world"
+    \item argument for use of frog:functionCall
+    \begin{itemize}
+        \item easier 
+        \item less error-prone
+        \item one IRI can have several meanings, can be the literal IRI og refer to the function letting the user define the meaning will make it possible to write better and more concret error messages and not preform the wrong operation. There is no way for us to know if (fn:contcat fn:minus fn:divide) is a list of IRIS or a functioncall with fn:minus and fn:divide as arguments. Since lists and function calls in Frog will look equal 
+    \end{itemize}
 \end{itemize}
 
 \subsection{Human Readable Syntax}
