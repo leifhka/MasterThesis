@@ -68,18 +68,22 @@ As a consequence of Frog being a part of OTTR and the benefits that wOTTR offers
 However, utilising RDF comes with its challenges as RDF requires the RDF Frog serialisation to store the information about the functions in triples; Resulting in much metadata that is not necessarily needed for a human to understand. Writing and reading the metadata may also be tedious, mainly because it requires much repetition when writing several functions. The problem of repetition in RDF is a known one as this is one of the problems that Frog tries to improve. Hence one solution could be to make a template to build a function. However, we propose a second compact serialisation, such as stOTTR, that is easy to read and write. 
 
 \para
-We suggest that there is a significant benefit to making an own human-readable serialisation of Frog compared to using an OTTR template to produce the function in RDF, besides it is nice to have a syntax for Frog that matches stOTTR, namely that the serialisation will make it easier for programmers that do not have knowledge of OTTR or RDF to make and produce functions that the OTTR templates can utilise, which means that the serialisation opens of for more people to make functions. However, this claim is only valid if the syntax is easy to learn. Hence, we need to make a syntax that is relatively easy to learn for an experienced programmer. 
+We suggest that there is a significant benefit to making an own human-readable serialisation of Frog compared to using an OTTR template to produce the function in RDF, besides it is nice to have a syntax for Frog that matches stOTTR, namely that the serialisation will make it easier for programmers that do not have knowledge of OTTR or RDF to make and produce functions that the OTTR templates can utilise, which means that the serialisation opens of for more people to make functions. However, this claim is only valid if the syntax is easy to learn. Hence, we need to make a syntax that is relatively easy to learn for an experienced programmer. Another argument for a human-readable serialisation is that it is difficult to provide an OTTR template that shortens the function body due to the function body being a uniquely structured list. However, with a human-readable serialisation, we are also open to shortening the function calls, as figure \ref{fig:hrs_example} shows use compared to figure \ref{fig:rdf_example}. 
+
+\para
+Due to RDF being the prefered serialisation for publishing functions and the human-readable syntax most probable being the first choice for writing and reading functions, Frog will, as OTTR, provide a translation between the two serialisations. 
+
+\para
+To summarise, Frog will, as OTTR, have two serialisations, one written in RDF and one more compact and easy to read and write. In addition, to the possibility, for Frog to translate between the serialisations.
+
+\subsection{Similarities in the two syntaxes}
+Both Frog serialisations will have similarities to their counterparts in OTTR. A Frog function can not directly be written into OTTR templates; however, the function calls can be a part of the template body. Consequently, we propose that Frog will have the same syntax for terms and types. 
 
 \para 
-To summarise, Frog will, as OTTR, have two serialisations, one written in RDF and one more compact and easy to read and write. 
-
-\subsection{OTTR seralisations compared to Frog (?)}
+A function call will have a similar syntax in both serialisations. LISP languages such as Scheme have inspired the syntax of the function calls, implying that the function IRI and the arguments are in the same list. The advantage of using a list structure for function calls is that list already is an established data structure in RDF. Although utilising list has its challenges as addressed in section \ref*{RDF_syntax}.
 
 \para 
-A function call will have a similar syntax in RDF and the Human Readable syntax. LISP languages such as Scheme have inspired the syntax of the function calls, implying that the function IRI and the arguments are in the same list. On the one hand, the advantage of using function calls as a list of function IRI and arguments is that lists are an existing and known data structure in RDF. On the other hand, the disadvantage of utilising lists as function calls is that in the RDF syntax, a list may have several meanings \lstinline{(fn:plus 2 3)} can be the list with the elements \lstinline{fn:plus}, \lstinline{2}, and \lstinline{3} or the function call on the fn:plus function that will add the numbers 2 and 3 together. Section \cite{RDF_syntax} further discusses the issue and present a solution.
-
-\para 
-The following two subsections will present the two different syntaxes in detail. They will both present an example of the function that takes a degree in Fahrenheit and returns the degree converted to Celcius. Equal to the following function in java. 
+The following two subsections will present the two different syntaxes in detail. They will both present an example of the function that takes a degree in Fahrenheit and returns the degree converted to Celcius. 
 
 \subsection{RDF Syntax}
 \label{RDF_syntax}
@@ -109,11 +113,11 @@ The syntax is built up of the following parts:
 \end{itemize}
 
 \para 
+A function call will have a similar syntax in RDF and the Human Readable syntax. LISP languages such as Scheme have inspired the syntax of the function calls, implying that the function IRI and the arguments are in the same list. On the one hand, the advantage of using function calls as a list of function IRI and arguments is that lists are an existing and known data structure in RDF. On the other hand, the disadvantage of utilising lists as function calls is that in the RDF syntax, a list may have several meanings \lstinline{(fn:plus 2 3)} can be the list with the elements \lstinline{fn:plus}, \lstinline{2}, and \lstinline{3} or the function call on the fn:plus function that will add the numbers 2 and 3 together. Section \cite{RDF_syntax} further discusses the issue and present a solution.
+
+\para 
 IDEAS:
 \begin{itemize}
-    \item example 
-    \item explenation of how the syntax is build up
-    \item defined by a set of SHACL shapes 
     \item needs use of list to make sure that a frog function can end-up in a base template, resulting in that we need to expand the function into RDF. 
     \item a RDF list can now have several meanings it can be a list og terms, a function call, or a list of generic arguments. We need to somehow seprete what is what therefore we make the list which is functionCall with :functionCall, :typeVars for generic argument lists and nothing for normal list as they need to have the same syntax as the rest of the RDF "world"
     \item argument for use of frog:functionCall
