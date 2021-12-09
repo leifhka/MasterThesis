@@ -1,0 +1,9 @@
+
+fn:plus[ottr:IRI ?name, ottr:IRI ?type] :: {
+    o-rdf:Type(?name, :BaseFunction),
+    ottr:Triple(?name, :type, _:type),
+    ottr:Triple(_:type, :returnType, ?type),
+    ottr:Triple(_:type, :parameterType, (?type, ?type)),
+    ottr:Triple(?name, :rule, op:numeric-add)
+} .
+

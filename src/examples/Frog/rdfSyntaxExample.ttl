@@ -1,4 +1,4 @@
-ex:CtoF a :Function;
+ex:FtoC a :Function;
     :type [:returnType xsd:decimal; :parameterTypes (xsd:decimal)]
     :def (:lambda (_:fahrenheit)
         (:functionCall fn:times (:typeVars xsd:decimal)

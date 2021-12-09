@@ -1,0 +1,7 @@
+# result of expandinc the instance: fn:plus(fn:plusInteger, xsd:integer).
+
+fn:plusInteger  a  :BaseFunction ;
+        :rule   op:numeric-add ;
+        :type   [ :parameterType  ( xsd:integer xsd:integer ) ;
+                  :returnType     xsd:integer
+                ] .

@@ -1,5 +1,5 @@
 
-def ex:CtoF(xsd:decimal ?fahrenheit) :: (
+def ex:FtoC(xsd:decimal ?fahrenheit) -> xsd:decimal :: (
     fn:times<<xsd:decimal>>
         (fn:minus<<xsd:decimal>> ?fahrenheit 31)
         (fn:divide<<xsd:decimal>> 5 9) 
