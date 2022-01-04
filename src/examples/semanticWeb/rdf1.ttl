@@ -1,0 +1,5 @@
+ex-p:Sebastian ex-r:hasFather ex-p:Thommas .
+ex-p:Sebastian ex-r:hasFather [ ex-r:hasFather ex-p:Roger] . 
+ex-p:Sebastian ex-r:hasAge  "22"^^xsd:int . 
+ex-p:Sebastian ex-r:hasName  "Sebastian"@no . 
+ex-p:Sebastian ex-r:hasName  "Bastian"@en .

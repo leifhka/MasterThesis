@@ -1,0 +1,4 @@
+ex-p:Sebastian ex-r:hasFather ex-p:Thommas, [ ex-r:hasFather ex-p:Roger] ; 
+                ex-r:hasAge  "22"^^xsd:int ; 
+                ex-r:hasName  "Sebastian"@no, "Bastian"@en ;
+                ex-r:ancestor (ex-p:Thommas ex-p:Roger).

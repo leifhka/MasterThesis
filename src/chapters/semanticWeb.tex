@@ -3,6 +3,90 @@
 
 \section{RDF}
 \label{rdf}
+RDF \autocite{W3C_RDF} stands for \emph{Resource Description Framework} and is a framework for formally describing structured information \autocite[19]{FOSWT}. Furthermore, RDF is the general method used in the semantic web to represent information in a web resource, which describes a collection of triples. As the name triple insinuates, a triple contains three elements, or more formally, three resources. These three resources have unique names and meaning depending on their placement in the triple. Firstly the subject, secondly the predicate and lastly, the object \autocite{W3C_RDF}. The predicate describes a relationship that the subject has to the object. Usually, one can define a collection of triples as a graph where the subjects and objects are nodes, and the predicates are a directed edge from a subject to an object \autocite{W3C_RDF}. However, RDF can represent a structure that we ordinarily would not describe as a graph because there are no restrictions in RDF for a resource being only a subject/object or a predicate. In terms of results, it is possible to have an element in the graph representing a node and an edge. An example of a triple is Sebastian hasFather Thommas, where Sebastian is the object, hasFather is the predicate, and Thommas is the object. RDF have numerous serialization formats; we will use Turtle \autocite{Turtle} for the examples.  
+
+\para
+To distinguish between the different resources in an RDF graph, we need to identify the different resources uniquely. Therefore, RDF uses \emph{Uniform Resource Identifier} (URI), where every URI represent a unique resource \autocite[21-22]{FOSWT}. Every URL is a URI ($URL\subseteq URI$). However, not all URIs are URL ($URL\nsubseteq URI$).  Previously, we had an example triple Sebastian hasFather Thommas. This example needs to use URI since we need to distinguish between the different resources, resulting in the triple \lstinline{<http://example.org/person/Sebastian> <http://example.org/relation/hasFather> <http://example.org/person/Thommas> .}. However, it may become time-consuming to write the whole URI for Sebastian every time we want to refer to the Sebastian resource; therefore, we have something called prefix in Turtle. We need to set the prefixes at the start of the Turtle document. Appending \lstinline{@PREFIX ex-p: <http://example.org/person/>.} in the start of the document containing the example triple would result in the possibility to shorten \lstinline{<http://example.org/person/Sebastian>} down to \lstinline{ex-p:Sebastian} . Adding the prefix \lstinline{@PREFIX\; ex-r:\; <http://example.org/relation/>.} results in the opportunity to shorten the full triple down to \lstinline{ex-p:Sebastian ex-r:hasFather ex-p:Thommas .}. The examples in the following sections utilies the following prefixes:
+
+\begin{figure}[h]
+    \lstinputlisting[language=turtle, firstnumber = 1]{examples/semanticWeb/prefixes.ttl}
+
+\end{figure}
+
+\para
+In the previous examples, we have started to make an ontology for families. Sometimes we know something about something without knowing what that thing is. For example, we may know that Sebastian has a father without knowing how the father is. RDF uses \emph{blank nodes} to express that we know something about a resource without knowing the URI of the resource. In the case when we know that Sebastian has a father without knowing who the father is the father is a blank node. Note that a blank node can only  occur in the subject or object position, not in the predicate position. To model that Sebastian has a father we can write either \lstinline{ex-p:Sebastian ex-r:hasFather _:b .} or \lstinline{ex-p:Sebastian ex-r:hasFather [ ] .} , beacause the syntax for writing a blank node in Turtle is either \lstinline{_:<some variable name>} or \lstinline{[ ]}. Since an blank node also can be a subject, we can express things about the blank node. Therefore, if we want to model that Sebastian has a father who also has a father who is \lstinline{http://example.org/person/Roger} we can write \lstinline{ex-p:Sebastian ex-r:hasFather [ ex-r:hasFather ex-p:Roger] .} or \lstinline{ex-p:Sebastian ex-r:hasFather _:father . _:father  ex-r:hasFather ex-p:Roger .}.
+
+\para
+RDF also uses \emph{literals}, such as strings and integers \autocite{W3C_RDF}. Literals can only be in the object position of the triple. If we want to express that Sebastian has age 22 we can write \lstinline{ex-p:Sebastian ex-r:hasAge"22"^^xsd:int.}. In addition, we can add that Sebastian has the name Sebastian in Norweigan and Bastian in English by using \emph{language tags}. Expressing the different names in RDF, results in the triples \lstinline{ex-p:Sebastian\; ex-r:hasName Sebastian@no.} and \lstinline{ex-p:Sebastian ex-r:hasName Bastian@en.}. The graph containing all the triples we mention in this section, by now, looks like this:
+
+\begin{figure}[h]
+    \begin{example}
+        \label{rdf1}
+        RDF triples describing Sebastian 
+    \end{example}
+    \lstinputlisting[language=turtle, firstnumber = 1]{examples/semanticWeb/rdf1.ttl}
+\end{figure}
+
+\para
+In addition, to the already mentioned abbreviations, Turtle has some more abbreviations to make the Turtle file more compact. For instance, if we have the same predicate and subject several times, with different objects, we can write the predicate and subject one time and separate the objects with a comma (,). Furthermore, Turtle also allows us to abbreviate when we use the same subject several times by writing semicolon (;) at the end of the line instead of dot(.). The aforementioned abbreviations produce the following turtle file:
+
+
+\begin{figure}[h]
+    \begin{example}
+        \label{rdf2}
+        Same rdf triples as in example \ref{rdf1}, but with abbreviations
+    \end{example}
+    \lstinputlisting[language=turtle, firstnumber = 1]{examples/semanticWeb/rdf2.ttl}
+\end{figure}
+
+\autoref{fig:exampelGraph} is a visualization of the graph we have now made.
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.2]{exampleGraph.png}
+    \caption{The visual graph over the graph made in section 2.1}
+    \label{fig:exampelGraph}
+\end{figure}
+
+\subsubsection{Lists in RDF}
+In RDF, we have two main ways to represent lists, \emph{containers} and \emph{collections} \autocite[58-63]{FOSWT}. These two are approaches to link data together using blank nodes.
+
+\para
+Firstly, a container has three different types, namely rdf:Seq (represents an order list), rdf:Bag (representing an unordered set) and rdf:Alt (representing a set of alternatives). A blank node with a rdf:type rdf:Seq, rdf:Bag or rdf:Alt builds up a container. As long as the container is one of the three types, it does not change its structure, only how the different applications display the container. To add nodes to the container, we need to add a predicate, \lstinline{rdf_1} to \lstinline{rdf_n}, from the blank node to the element. Where the first element has the predicate \lstinline{rdf_1}, and the n-th element has predicate \lstinline{rdf_n}. The following RDF graph shows Sebastians ancestors in an unordered set:\footnote{Note that we have used the abbreviation a for rdf:type}:
+
+\begin{figure}[h]
+    \begin{example}
+        Same rdf triples as in example \ref{rdf2}, with the addition of Sebastian's ancestors in a unordered set
+    \end{example}
+    \lstinputlisting[language=turtle, firstnumber = 1]{examples/semanticWeb/rdfSet.ttl}
+\end{figure}
+
+\para
+Secondly, we can make lists by using collections. The main difference between a container and a collection is that a collection is closed, meaning it is impossible to add new elements after making a list. On the contrary, it is possible to add new elements to a container, as long as we reference the blank node (e.g. \lstinline{_:list}). The reason for collections being closed is that they are built up like a linked list where we connect blank nodes, which links to an element. Collections have two predicates to link the blank nodes and elements together. 
+
+\begin{itemize}
+    \item rdf:first: is the predicate linking us to an element
+    \item rdf:rest: linking us to the rest of the list
+    \item rdf:nil: end of the list
+\end{itemize}
+
+\para
+\autoref{fig:containerAndCollection} visualises the differences between containers and collections. In Turtle, we can use () as an abbreviation for writing collections where we put the collection elements inside the (). In the general case, a collection will look like this \lstinline{(member_1 member_2 .... member_n)}. An RDF graph containing Sebastian's ancestors using a collection ends up looking like this:
+
+\begin{figure}[h]
+    \begin{example}
+        Same rdf triples as in example \ref{rdf2}, with the addition of Sebastian's ancestors in a collection
+    \end{example}
+    \lstinputlisting[language=turtle, firstnumber = 1]{examples/semanticWeb/rdfList.ttl}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.2]{containerAndCollection.png}
+    \caption{Shows the difference between a container and a collections in structur}
+    \label{fig:containerAndCollection}
+\end{figure}
 
 \section{OWL}
 
