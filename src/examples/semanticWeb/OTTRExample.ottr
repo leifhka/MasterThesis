@@ -1,0 +1,18 @@
+ex-t:Person [
+    ottr:IRI ?person,
+    xsd:integer ?age,
+    ? List<ottr:IRI> ?fathers,
+    ? List<ottr:IRI> ?mothers,
+    ? List<ottr:IRI> ?ancestors,
+    List<xsd:String> ?names
+    ] :: {
+    cross | ottr:Triple(?person, ex-r:hasFather, ++?fathers),
+    cross | ottr:Triple(?person, ex-r:hasMother, ++?mothers),
+    ottr:Triple(?person, ex-r:hasAge, ?age),
+    cross | ottr:Triple(?person, ex-r:hasName, ++?names),
+    ottr:Triple(?person, ex-r:ancestor, ?ancestors)
+}.
+
+ottr:Triple(_:b, ex-r:hasFather, ex-p:Roger) .
+ex-t:Person(ex-p:Sebastian, 22 , (ex-p:Thommas, _:b), none, 
+(ex-p:Thommas, ex-p:Roger), ("Sebastian"@no, "Bastian"@en)).

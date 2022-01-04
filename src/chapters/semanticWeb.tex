@@ -281,3 +281,46 @@ The validation report returns a validation since ex-p:Fred has an ancient age.
 
 \section{OTTR}
 \label{OTTR}
+\emph{Reasonable Ontology Templates} OTTR is a language representing ontology modelling patterns as parameterised ontologies and can make user-defined abstractions to recurring modelling patterns \autocite[477]{SLKF_OTTR_2018}. OTTR has two central constructors, \emph{templates} and \emph{instances} \autocite[3]{SLKK_OTTR_2021}. The OTTR  templates consist of a head and a body, where the head specifies a templates' name and parameters, whereas the body contains the parameterised ontology pattern \autocite[479]{SLKF_OTTR_2018}. In addition, OTTR allows us to determine the types, which \autoref{ottr types} discusses, and the cardinality of the parameters. There are two types of cardinalities \emph{mandatory} or \emph{optional}. Optional is denoted with a ? while mandatory is the default. An optional parameter allows that the corresponding argument is none \footnote{None (denoted with ottr:none) is a value in the OTTR framework used to represent a missing or no value \autocite[7]{SLKK_OTTR_2021}, similar to, for example, NULL in Java}. Furthermore, a parameter can also have a specified \emph{default value}, which can be any valid argument. If an instance argument is none on a corresponding mandatory parameter during the expansion, OTTR ignores the instance\autocite[480]{SLKF_OTTR_2018}. However, if the parameter has a default value, then OTTR uses this default value instead of none \autocite[7]{SLKK_OTTR_2021}. In addition, a parameter can be \emph{non-blank}, meaning that it cannot take in a blank node. We can denote a \emph{non-blank} paramter using !\autocite[6]{SLKK_OTTR_2021}.
+
+\para
+Instances, also called template instances, represents the use of a template.  Instances contain the name of the template it uses and a list of its arguments that substitute the template's parameters \autocite[3]{SLKK_OTTR_2021}. To build up the parameterised ontology pattern in the body, we use instances of templates and base templates \autocite[479]{SLKF_OTTR_2018}. \emph{Base templates} are a particular type of template that may not contain a pattern that often represents an abstraction in an underlying language. Since OTTR's underlying langue is RDF, one critical base template is ottr:Triple, representing a single RDF triple \autocite[4]{SLKK_OTTR_2021}. ottr:Triple takes in three arguments: a subject, a predicate and an object, respectively. OTTR uses recursion to expand the instances into RDF graphs, recursively replacing all the instances in the body with the pattern they represent. The recursion stops when it reaches a base template \autocite[479]{SLKF_OTTR_2018}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{stOTTRExample.png}
+    \caption{A genralisation showing the syntax of stOTTR}
+    \label{fig:stOTTERGenralisation}
+\end{figure}
+
+\para
+OTTR has two serialisations describing the templates and the instances: stOTTER and wOTTR. stOTTER is custom serialisation of OTTR, made to be compact and easy to ready for humans \autocite[4]{SLKK_OTTR_2021}. wOTTR, on the other hand, is a serialisation written in RDF, specified by an OWL ontology and a grammar set by SHACL \autocite{SHACL} \autocite[4]{SLKK_OTTR_2021}. In addition to the two serialisations, OTTR also provides two solutions for making instances from structure data sources; bOTTR and tabOTTR. tabOTTR is a markup language that can create instances from tabular data files, and bOTTR can make mappings over several queryable sources\autocite[16]{SLKK_OTTR_2021}. \autoref{fig:stOTTERGenralisation} shows a generalisation of OTTR written in the seralisation stOTTR.
+
+\para
+OTTR provides three different expansion modes. We can use the expansions modes on an instance in a template body. OTTR will treat every argument in an instance that has an expansion mode as a list. However, OTTR will only expand the arguments marked with the list expansion, ++, in front of the argument. Additionally, OTTR will treat arguments without a list expansion as a list with one element. Note that the different list expansions behave the same if we only mark one argument with the list expansion \autocite[480]{SLKF_OTTR_2018}. The three different expan modes works as following \autocite[8]{SLKK_OTTR_2021}:
+\begin{itemize}
+    \item cross: gives one instance per element in the cross-product
+    \item zipMin: makes one instance per element in the smallest list, making n instances, where n is the length of the smallest list, and connecting the element on the same index in the lists
+    \item zipMax: almost the same as zipMin, but instead of choosing the smallest list, zipMax makes one instance for every element in the largest list. OTTR will then append none at the end of the smaller lists until they are the same size as the largest list. 
+\end{itemize}
+
+\begin{figure}
+    \begin{example}
+        A OTTR template modelling a person with the same properties as in section \ref{rdf}. The result of expanding the instances on the bottom would be the same as shown in figure X (RDF SECTION)
+    \end{example}
+    \lstinputlisting[language=turtle, firstnumber = 1]{examples/semanticWeb/OTTRExample.ottr}
+\end{figure}
+
+
+\subsubsection{Types in OTTR}
+\label{ottr types} 
+OTTRs type system is there to verify the correctness of the template and instances by checking for compatible typing and consistent typing. OTTRs type system has three different types of types: basic types, LUB-types and list types. Furthermore, OTTR arranges the types in a subtype relationship, where the set of types are transitive and reflexive. The opposite or inverse of a subtype is a supertype. All the basic types, except for ottr:IRI and ottr:Bot, are common types taken from RDF, RDFS, OWL and XSD standards. ottr:IRI reference to the URI to a resource. ottr:Bot represents the type Bot, a subtype to all other types. In contrast to Bot, OTTR has the type Top, rdfs: Resource, a supertype for all other types.  Top is the default parameter type. If we want the parameter to have another type, we need to add the type before the parameter name explicitly. OTTR throws an error if an argument does not have a compatible type required by the template parameter. A compatible type to a parameter is either the type that the parameter explicitly states or its subtypes. In general, a type P is compatible with all supertypes of P.
+
+\para
+\emph{LUB} (LUB<>), denoted with ottr:Lub, stands for least upper bound. For every basic type P, there is also a LUB-type LUB<P> such that LUB<P> is a subtype of P. Furthermore, LUB<P> is compatible with all subtypes of P. While P, on the other hand, is compatible with all supertypes of P. Furthermore, OTTR has two different types, \emph{List<>}, denoted with rdf:list, and \emph{NEList<>}, denoted with ottr:NEList. Where NEList stands for non-empty list. The OTTR type system assumes that for each type P, in the set of types, there exists a type List<P> and NEList<P>.  \autocite[5]{SLKK_OTTR_2021}.
+
+\para
+OTTR uses two types of type checking \emph{compatible typing} and \emph{consistent typing}. Compatible typing refers to an argument having a compatible type for the given parameter. Consistent typing, on the other hand, ensures that the parameter is consistently typed. For example, if we have a blank node, which can be any type, and we use that blank node in an instance that excepts an xsd:integer. OTTR will then interpret the blank node as an xsd:integer in the rest of the template, which means sending this blank node as an argument to an instance that expects a xsd:string will result in an error message \autocite[5-6]{SLKK_OTTR_2021}. 
+
+\subsubsection{Terms}
+Terms in OTTR are the set of constants and variables where constants include lists, an order collection of terms. In addition to the constant nil, which OTTR uses to denote an empty list. The terms in OTTR are equal to valid RDF terms, such as IRIs, blank nodes, and literals. The only distinction between a variable and a constant term is in the template definition, where the variable occurs in a parameter declaration in the template's signature.\autocite{OTTR_mOTTR}
