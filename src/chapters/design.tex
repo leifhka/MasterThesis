@@ -49,7 +49,7 @@ Furthermore, a function call consists of a function IRI, arguments and generic a
     \begin{minipage}{.5\textwidth}
       \centering
       \includegraphics[scale=0.3]{type.png}
-      \caption{frog types}
+      \caption{Frog types}
       \label{fig:type}
     \end{minipage}
 \end{figure}
@@ -121,7 +121,7 @@ The syntax is built up of the following parts:
 \end{itemize}
 
 \para 
-A function call will have a similar syntax in RDF and the Human Readable syntax. LISP languages such as Scheme have inspired the syntax of the function calls, implying that the function IRI and the arguments are in the same list. On the one hand, the advantage of using function calls as a list of function IRI and arguments is that lists are an existing and known data structure in RDF. On the other hand, the disadvantage of utilising lists as function calls is that in the RDF syntax, a list may have several meanings \lstinline{(fn:plus 2 3)} can be the list with the elements \lstinline{fn:plus}, \lstinline{2}, and \lstinline{3} or the function call on the fn:plus function that will add the numbers 2 and 3 together. Section \cite{RDF_syntax} further discusses the issue and present a solution.
+A function call will have a similar syntax in RDF and the Human Readable syntax. LISP languages such as Scheme have inspired the syntax of the function calls, implying that the function IRI and the arguments are in the same list. On the one hand, the advantage of using function calls as a list of function IRI and arguments is that lists are an existing and known data structure in RDF. On the other hand, the disadvantage of utilising lists as function calls is that in the RDF syntax, a list may have several meanings \lstinline{(fn:plus 2 3)} can be the list with the elements \lstinline{fn:plus}, \lstinline{2}, and \lstinline{3} or the function call on the fn:plus function that will add the numbers 2 and 3 together. Section \ref{RDF_syntax} further discusses the issue and present a solution.
 
 \para 
 IDEAS:
@@ -199,7 +199,7 @@ As mentioned earlier, Frog will be strongly typed and utilise the OTTR type syst
 An excellent example of a function that needs several return types is the function fn:plus, which takes in two arguments and adds them together. As figure \ref{fig:ottr_numeric_types} shows, the OTTR type system has 17 different numeric types. Consequently, we need to produce 17 different plus functions, one for each type. If we add all the numeric functions, divide, times and minus, we have to provide 68 functions only for essential numerical operation. However, making 68 functions will be time-consuming and contain many repetitions. 
 
 \begin{figure}
-    \centering
+    %\centering
     \begin{minipage}{.5\textwidth}
       \centering
       \lstinputlisting[language=turtle, firstnumber = 1, basicstyle = \tiny]{examples/design/templateExp.ottr}
@@ -208,22 +208,34 @@ An excellent example of a function that needs several return types is the functi
       \centering
       \lstinputlisting[language=turtle, firstnumber = 1, basicstyle = \tiny]{examples/design/resultOfTemplateEx.ttl}
     \end{minipage}
-    \label{lol}
-    \caption{One the left: an example of have a template generating an fn:plus base function would look. One the right: the result of expanding the instance fn:plus(fn:plusInteger, xsd:integ)}
+    \caption{One the left: an example of how a template generating an fn:plus base function could have looked. One the right: the result of expanding the instance fn:plus(fn:plusInteger, xsd:integ), resulting in a Frog base function in the RDF serilaisation}
+    \label{fig:generating_function_example}
 \end{figure}
 
 \para
 One can approach the problem of making more general functions with several approaches, such as generics and code generation. However, we will first argue why using the already existing type LUB(Least Upper bound) would not work. !TODO!
 
 \para
-One approach would have been to generate the functions. As the functions have an RDF syntax, this could have been done by making templates, and using an import statment that imorted  
+One approach would have been to \emph{generate} the functions. One idea to generate functions would have been to make templates of a function and expand them into a function in the RDF serialisation. The creator of the functions could then have used an import statement to expand the template such that we end up with a resulting RDF function. In the human-readable syntax the import could, for instance, look like \lstinline{@importFunction fn:plus(fn:plusInteger, xsd:integer)}. Consisting of the key \lstinline{@importFunction}, which tells Frog that it should import a function and the instance that it should expand to get the resulting function in the RDF serialisation. After importing the fn:plusInteger function, the creator of the Frog functions, could then have utilised fn:plusInteger in the other functions. Figure \ref{fig:generating_function_example} shows an example of how such a generating template could have looked and the result after expanding the template in Frog with the import \lstinline{@importFunction fn:plus(fn:plusInteger, xsd:integer)}.The templates that define a function will be known as \emph{generating function templates}.
+
+\para  
+Another approach is to make Frog a generic language, such as Java. To use a function with a specific type would then require the user to specify the type in the function call. For a creator to utilise the function fn:plus with the xsd:integer type to add together the integers 4 and 3, the creator must write \lstinline{(fn:plus<<xsd:integer>> 4 3)} where the types inside << and >> would be the generic arguments. Figure \ref{fig:generic_function} depicts a generic variable, which we can utilise as a parameter type and return type in the function head and a generic argument in the function body.  
+
+\begin{figure}
+    \centering
+    \lstinputlisting[language=frog, firstnumber = 1, basicstyle = \small]{examples/design/genericFrogFunction.frog}
+    \caption{An example of a generic function, which takes in a number and adds it with itself three times. As the figure shows, we can utilise the generic arguments as parameter types, return type and generic arguments in the function body. }
+    \label{fig:generic_function}
+\end{figure}
+
+\para 
+Both solutions have one thing in common: we need to have the possibility to restrict the types for the generic of the type of the template. Therefore the type arguments, regardless of whether they are arguments to a template for the generation or are generic arguments directly to the function, need to state which type is valid for them to be. We propose that Frog do this by requiring the creator of either the generating function templates or the generic functions to state what type the type must be a subtype of. For instance, in figure \ref{fig:generating_function_example}, the fn:plus generating function template states that the template variable ?type must be a subtype of owl:real. On the other hand, figure \ref{fig:generic_function} shows how a generic function defines that ?t must be a subtype of owl:real. 
+
+\para 
+As presented in section X, Frog will use generics instead of generating functions. The main reason generic functions are a prefered solution compared to generating function templates is that generic functions make it feasible to make user-defined functions in the Frog syntaxes that work on several types. On the other side, generating functions would require the user to make a template. Making it possible to make user-defined generating function templates requires that we validate the generating function templates before OTTR expands them, in addition to validating the Frog functions. As a result of validating the generating function templates and the Frog functions instead of only the Frog functions, Frog may be more error-prone. Another argument for utilising generic functions is that Frog is not dependent on OTTR. 
 
 \para
-Ikke enkelt å lage til noen andre en base functions.  
-Vanskliger å begrense subtypingen 
-
-\para
-Only a part of the frog type system, and is not possible to use in OTTR. Lets us set types as variables that needs to be set in the function call. The function needs to define what type the generic type is a subtype of. \textbf{Why not use LUB ?} as previusly mention LUB lets ut set a type that can be the Least Upper Bound meaning that LUB<xsd:integer> is compatible with all of subtypes of xsd:integers. So semanticly speeking will except the same types of terms. However the dicidvantage of using LUB in FROG is that another function that utilieses a function which return LUB<xsd:integer> may only except on of its subtypes, resulting in us having to convert the value, this may also result in more errors compared to generic types. The reason for this is that more of the errors will accure during the runtime compared to generics that will catch more of the errors in the type checing part. \textbf{Why not make it possible to generate functions}: possible to make a ottr template to define the different generic functions, then the user could have used an import with the ottr instance that gave the new function a name and type. Since base functions are written in rdf the genration template would make a RDF base function. However the dicidvantage with this solution is the naming part. 
+To conclude, this section has presented the problem of making functions that we wish to work with several types. The generating function templates and generic types were presented as solutions. However, the generating function templates make Frog dependent on  OTTR, and the user needs to write the functions as an OTTR template instead of the Frog syntax, which requires a new form of validation. 
 
 \section{Type checking}
 
