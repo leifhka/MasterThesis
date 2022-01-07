@@ -137,6 +137,7 @@ IDEAS:
 \end{itemize}
 
 \subsection{Human Readable Syntax}
+The Human Readable Syntax of Frog, abbreviated with HRS, is based on known programming languages such as python, java and LISP. As a result of Frog having equal terms and types as its OTTR counterpart, OTTR will also inspire HRS. As shown in figure \ref{fig:term}, parameter variable is also a term, resulting in the syntax of a variable in the HRS being the same as in sTOTTR, namely with an? followed with the name of the varible, for instance ?number.  Figure \ref{fig:frogFunctionHRS} depicts a general Frog function written HSM, as python and java have inspired the function head. On the other hand, LISP inspires the function body or the function call. 
 
 \begin{figure}[h]
     \lstinputlisting[language=frog, firstnumber = 1]{examples/Frog/hrsExample.frog}
@@ -144,14 +145,31 @@ IDEAS:
     \label{fig:hrs_example}
 \end{figure}
 
+\para
+A consequence of Frog inheriting terms from OTTR, which again is built up by a subset of RDF turtle (KILDE 1 side 4), is that some patterns would be natural to use, such as <> to define generic arguments and variables, already is in use. In the case of generic arguments and variables, an IRI can be written with \lstinline{<>}, for instance, \lstinline{<http://ns.frog.ottr.xyz/0.1#functionCall>} is the same as the short form :functionCall. As a result of the pattern \lstinline{<>} already being in use, we have decided to define the set of generic arguments and variables with \lstinline{<<>>} to make it somehow similar to javas way to express the set of generic arguments and variables.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{frogFunctionHRS.png}
+    \caption{A genralisation showing Frogs human readable syntax }
+    \label{fig:frogFunctionHRS}
+\end{figure}
+
+\para 
+The HRS portrays the different concepts in the Frog Functions in the following ways\footnote{Note that the formal defintion of both the function call and the function is found in section \ref{implHRS}}:
 \begin{itemize}
-    \item example 
-    \item explenation of how the syntax is build up
-    \begin{itemize}
-        \item LISP 
-        \item OTTR 
-    \end{itemize}
+    \item The function's name will be an IRI uniquely identifying the function. Similarly to the function name in the RDF syntax and the template name in stOTTR. Before the function name, def is used to define the start of the function. 
+    \item The set of the generic variables are defined inside <<>> and separated with ,. To define what type the generic variable is a subtype of, we write subtypeOf between the generic variable and type.
+    \item The set of parameters are defined inside () and separated with ,.  The HRS defines the parameter type before the parameter name, similar to Java and OTTR.
+    \item The HRS defines the return type after the set of parameters with an -> followed by the type of the return value.
+    \item Frogs HRS utilises :: as a distinction between the function head and the function body.
+    \item The function body is defined as a function call.
+    \item HRS ends every function with a . similar to how templates end with an . in stOTTR.   
 \end{itemize}
+
+\para 
+A function call in the HRS consist of four parts. Firstly, the optional :functionCall IRI,  similar to the IRI found in the RDF syntax. However, the :functionCall  IRI is mandatory if the function call does not contain any arguments due to Frog needing to distinguish between a list term containing one IRI and a function call. We have, however, decided that the :functionCall is optional otherwise since this will result in a more compact syntax and that we assume that there will be few functions that do not expect any arguments. Secondly, the function call contains the function name, the IRI, of the function it is calling on. Thirdly, the set of generic variables found inside <<>> separated with ,.  The set of generic arguments is also optional, depending on what the function the function call utilises expects. Lastly, the function call contains zero or more arguments.
+
 
 \section{Extension of the OTTR type system}
 \label{extension_ottr_type}

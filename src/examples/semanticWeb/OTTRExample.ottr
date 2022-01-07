@@ -1,16 +1,16 @@
 ex-t:Person [
-    ottr:IRI ?person,
-    xsd:integer ?age,
-    ? List<ottr:IRI> ?fathers,
-    ? List<ottr:IRI> ?mothers,
-    ? List<ottr:IRI> ?ancestors,
-    List<xsd:String> ?names
+        ottr:IRI ?person,
+        xsd:integer ?age,
+        ? List<ottr:IRI> ?fathers,
+        ? List<ottr:IRI> ?mothers,
+        ? List<ottr:IRI> ?ancestors,
+        List<xsd:String> ?names
     ] :: {
-    cross | ottr:Triple(?person, ex-r:hasFather, ++?fathers),
-    cross | ottr:Triple(?person, ex-r:hasMother, ++?mothers),
-    ottr:Triple(?person, ex-r:hasAge, ?age),
-    cross | ottr:Triple(?person, ex-r:hasName, ++?names),
-    ottr:Triple(?person, ex-r:ancestor, ?ancestors)
+        cross | ottr:Triple(?person, ex-r:hasFather, ++?fathers),
+        cross | ottr:Triple(?person, ex-r:hasMother, ++?mothers),
+        ottr:Triple(?person, ex-r:hasAge, ?age),
+        cross | ottr:Triple(?person, ex-r:hasName, ++?names),
+        ottr:Triple(?person, ex-r:ancestor, ?ancestors)
 }.
 
 ottr:Triple(_:b, ex-r:hasFather, ex-p:Roger) .
