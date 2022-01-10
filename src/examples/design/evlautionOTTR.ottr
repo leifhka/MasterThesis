@@ -1,0 +1,5 @@
+
+ex:person [ottr:IRI ?person, xsd:string ?name, xsd:integer ?age] :: {
+    ottr:Triple(?person, ex:hasAge, ?age),
+    ottr:Triple(?person, ex:hasAge2 ?age)
+} .

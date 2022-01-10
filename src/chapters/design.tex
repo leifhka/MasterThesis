@@ -7,7 +7,7 @@ In short, Frog will be a purely typed functional programming language, resulting
 
 \para
 The following prefixes will be utlised in the examples of this chapter:
-\lstinputlisting[language=turtle, firstnumber = 1]{examples/Frog/prefixesDesign.ttl}
+\lstinputlisting[language=turtle, firstnumber = 1]{examples/design/prefixesDesign.ttl}
 
 
 \begin{figure}[h]
@@ -88,7 +88,7 @@ To summarise, Frog will, as OTTR, have two serialisations, one written in RDF an
 Both Frog serialisations will have similarities to their counterparts in OTTR. A Frog function can not directly be written into OTTR templates; however, the function calls can be a part of the template body. Consequently, we propose that Frog will have the same syntax for terms and types. 
 
 \para 
-A function call will have a similar syntax in both serialisations. LISP languages such as Scheme have inspired the syntax of the function calls, implying that the function IRI and the arguments are in the same list. The advantage of using a list structure for function calls is that list already is an established data structure in RDF. Although utilising list has its challenges as addressed in section \ref*{RDF_syntax}.
+A function call will have a similar syntax in both serialisations. LISP languages such as Scheme have inspired the syntax of the function calls, implying that the function IRI and the arguments are in the same list. The advantage of using a list structure for function calls is that list already is an established data structure in RDF. Although utilising list has its challenges as addressed in section \ref{theListProblem}.
 
 \para 
 The following two subsections will present the two different syntaxes in detail. They will both present an example of the function that takes a degree in Fahrenheit and returns the degree converted to Celcius. 
@@ -106,7 +106,7 @@ The following two subsections will present the two different syntaxes in detail.
 The RDF serialisation is as OTTR defined by a set of SHACL shapes expressions. Due to Frog and OTTR having the same terms and types, the SHACL shapes used to validate Frog will utilise some OTTRs shapes. 
 
 \para
-The syntax is built up of the following parts: 
+The syntax is built up of the following parts\footnote{Note that the formal defintion of both the function call and the function in the RDF syntax is found in section \ref{implRDF}}: 
 
 \begin{itemize}
     \item \lstinline{:Function} : For Frog to interpret an IRI as a function, we need to explicitly state that the type of the IRI is a Function. 
@@ -120,21 +120,19 @@ The syntax is built up of the following parts:
   
 \end{itemize}
 
-\para 
-A function call will have a similar syntax in RDF and the Human Readable syntax. LISP languages such as Scheme have inspired the syntax of the function calls, implying that the function IRI and the arguments are in the same list. On the one hand, the advantage of using function calls as a list of function IRI and arguments is that lists are an existing and known data structure in RDF. On the other hand, the disadvantage of utilising lists as function calls is that in the RDF syntax, a list may have several meanings \lstinline{(fn:plus 2 3)} can be the list with the elements \lstinline{fn:plus}, \lstinline{2}, and \lstinline{3} or the function call on the fn:plus function that will add the numbers 2 and 3 together. Section \ref{RDF_syntax} further discusses the issue and present a solution.
 
-\para 
-IDEAS:
-\begin{itemize}
-    \item needs use of list to make sure that a frog function can end-up in a base template, resulting in that we need to expand the function into RDF. 
-    \item a RDF list can now have several meanings it can be a list og terms, a function call, or a list of generic arguments. We need to somehow seprete what is what therefore we make the list which is functionCall with :functionCall, :typeVars for generic argument lists and nothing for normal list as they need to have the same syntax as the rest of the RDF "world"
-    \item argument for use of frog:functionCall
-    \begin{itemize}
-        \item easier 
-        \item less error-prone
-        \item one IRI can have several meanings, can be the literal IRI og refer to the function letting the user define the meaning will make it possible to write better and more concret error messages and not preform the wrong operation. There is no way for us to know if (fn:contcat fn:minus fn:divide) is a list of IRIS or a functioncall with fn:minus and fn:divide as arguments. Since lists and function calls in Frog will look equal 
-    \end{itemize}
-\end{itemize}
+\subsubsection{The list problem}
+\label{theListProblem}
+As mentioned earlier, the RDF syntax and the Human Readable syntax will utilise a list containing the name of the function the function call is using, the generic arguments, and the arguments in a list. The advantage of using function calls as a list is that list already is an established data structure in RDF. In addition, the Turtle syntax offers a compact form of writing lists, as section \ref{listInRDF} and figure \ref{rdfCollection} elaborates. 
+
+\para
+However, utilising lists as function calls proposes a problem in the RDF syntax, namely that Frog can interpret an RDF list where the first element is an IRI as either a function call or a list. For instance, the list \lstinline{(fn:plus 2 3)} can have several meanings. Firstly, \lstinline{(fn:plus 2 3)} can refer to the list containing the elements \lstinline{fn:plus}, \lstinline{2} and \lstinline{3}. Lastly, \lstinline{(fn:plus 2 3)} can refer to the function \lstinline{fn:plus}, which adds together \lstinline{2} and \lstinline{3}.
+
+\para
+Additionally, we have also chosen to express the generic arguments in a list since utilising lists makes it feasible to write short and compact when utilising Turtle, and that list is ordered. As a result, Frog may interpret a list as a literal list, a function call or a list of generic arguments.
+
+\para
+As a solution, we propose that function calls and generic argument lists must contain a key IRI as the first element, such that Frog decodes the list correctly. Therefore, the first element in a function call list will be the IRI \lstinline{:functionCall}, while the first element in the generic argument list, on the other hand, will be \lstinline{:typeVars}. As a result, Frog will decode \lstinline{(fn:plus 2 3)} as a list while Frog on the other side interprets \lstinline{(:functionCall fn:plus 2 3)} as a function call. We argue that this solution is less error-prone than trying to interpret the list from the context. In addition, we argue that using key IRIs will make it easier to produce more concrete and correct validation messages. 
 
 \subsection{Human Readable Syntax}
 The Human Readable Syntax of Frog, abbreviated with HRS, is based on known programming languages such as python, java and LISP. As a result of Frog having equal terms and types as its OTTR counterpart, OTTR will also inspire HRS. As shown in figure \ref{fig:term}, parameter variable is also a term, resulting in the syntax of a variable in the HRS being the same as in sTOTTR, namely with an? followed with the name of the varible, for instance ?number.  Figure \ref{fig:frogFunctionHRS} depicts a general Frog function written HSM, as python and java have inspired the function head. On the other hand, LISP inspires the function body or the function call. 
@@ -280,6 +278,10 @@ As function calls can contain arguments which again is a function call regardles
 Validating a Frog function would be preform in several steps. The first natural step is to validate that every function call in the function body uses an existing function and that every used parameter is defined. Furthermore, Frog needs to confirm that every function call in the body has the right amount of arguments and that every argument has the correct type. If an argument is a function call in itself, we assume that the function's return type is correct and check if this return type is compatible with the parameter. We can assume that the function calls return type is correct because the next step is to validate precisely this. 
 
 \section{Evaluation}
+As mentioned, Frog will be a pure language, meaning that executing Frog will not produce any side effects. Thus there will be naturally to utilise memorisation. Consequently, memorisation will guarantee that Frog only executes the function calls with the equal signature (calling on the same function with the same arguments) once, removing unnecessary executions. 
+
+\para
+In addition to choosing memorisation, we also have to choose what evaluation strategies to utilise, eager or non-strict evaluation. As Frog uses memorisation, the natural choice is between eager evaluation with memorisation or lazy evaluation. In contrast to lazy evaluation, eager evaluation makes performing I/O operations and error handling more feasible. On the other hand, lazy evaluation benefits from not performing unnecessary evaluations and makes it possible to have streams. 
 \begin{itemize}
     \item Lazy evaluation
     \item Frog is pure 
@@ -293,14 +295,31 @@ Validating a Frog function would be preform in several steps. The first natural 
 
 
 \subsection{Evaluation in OTTR}
-\begin{itemize}
-    \item Lazy evaluation -> make sure of that OTTR does not evalute function calls that are needed to expand the template and only once (memorization)
-    \item Only evalute when the function reaches a base template
-    \item An instance can branch a argument to several base templates 
-    \item OTTR gives a warning when using unused variables however it is still possible
-    \item None in to base functions 
-    \item 
-\end{itemize}
+Evaluation in OTTR refers to when OTTR should execute the function calls in the templates and instances. We suggest two approaches, firstly, an more eager approach, which evaluates the function call as soon as OTTR reaches the instance containing the function call before expanding the instance—in other words, substituting the function call with the evaluation result as soon as possible. Secondly, to evaluate the function call when it reaches a base template, a non-strict evaluation strategy. 
+
+\begin{figure}
+    \lstinputlisting[language=turtle, firstnumber = 1]{examples/design/evlautionOTTR.ottr}
+    \caption{An example of a OTTR template that contains an unused parameter, namely ?name. }
+    \label{fig:ottr_evaluation_example}
+\end{figure}
+
+\begin{figure}
+    \lstinputlisting[language=turtle, firstnumber = 1]{examples/design/evlautionOTTRUsage.ottr}
+    \caption{An example instance of the template found in figure \ref{fig:ottr_evaluation_example},  where ex:concatName is the function the first and last name together with space between the names}
+    \label{fig:ottr_evaluation_example_usage}
+\end{figure}
+\para
+When producing OTTR templates, OTTR does not require us to utilise every parameter in the template body, even though OTTR throws an error when OTTR finds an unused parameter. Therefore, we can not guarantee that every argument is required for expansion when creating an instance. 
+Figure \ref{fig:ottr_evaluation_example} is an example of a template that does not use every parameter. If we were to utilise the eager approach, OTTR might evaluate unnecessarily functions calls, as the template does not require the corresponding parameter to be used. When using an eager strategy, expanding the instance from figure \ref{fig:ottr_evaluation_example_usage} would result in OTTR evaluating the ex:concatName function call even though the evaluation is not necessary for the expansion of the instance. On the other hand, utilising a non-strict evaluation strategy would result in OTTR solely evaluating the function calls when it reaches a base template, hence only evaluating the function call when OTTR needs the evaluated value for the expansion. Expanding the instance from figure \ref{fig:ottr_evaluation_example_usage} would, in contrast to the eager approach, result in OTTR never evaluating the ex: concatName function call when utilising a non-strict evaluation strategy. 
+
+\para 
+Furthermore, OTTR discards instances with none as arguments to a mandatory parameter (Prøve å finne en kilde). For illustration, the instance \lstinline{o-rdf:Type(none, (fn:makeIRI "xsd" "integer"))}\footnote{o-rdf:Type is a template found in the OTTR template library http://tpl.ottr.xyz/}, where fn:makeIRI is a Frog function making an IRI from a prefix label and the name part thingi(?). Both of the parameters in o-rdf:Type are mandatory, resulting in OTTR discarding our instance. However, an eager strategy would result in OTTR evaluating the fn:makeIRI function call, despite OTTR never needing the evaluated value. A non-strick approach, on the other hand, would not evaluate the function call since OTTR discards the instance the expansion reaches a base template.
+
+\para 
+Nonetheless, utilising a non-strick approach to evaluate the function call may lead to OTTR executing the same function several times. For example, the instance \lstinline{ex:person(ex:Peter "Peter Jensen" (fn:minus 25 1))} from the template found in figure \ref{fig:ottr_evaluation_example} would result in OTTR evaluating the fn:minus function call twice since the template uses the parameter in two base templates. The number of base templates a function call reaches may be numerous in other cases. On the other side, the eager strategy would only evaluate the function call once because OTTR would substitute the function call with the evaluate value before expanding the instance. However, since Frog will use memorisation, utilising a non-strick approach would, OTTR will, in practice, only evaluate the function call once.
+
+\para
+In summary, a non-strict approach in OTTR combined with the memorisation in Frog will result in OTTR only evaluating a function call once and solely if OTTR needs the evaluated value for the expansion, hence removing unnecessary evaluations and repetitions. For this reason, we argue that a non-strict approach is a more suitable strategy for OTTR to decide when to evaluate the function calls compared to an eager approach. 
 
 
 \section{Execution}
