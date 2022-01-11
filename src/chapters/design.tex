@@ -293,6 +293,55 @@ In addition to choosing memorisation, we also have to choose what evaluation str
     \end{itemize}
 \end{itemize}
 
+\subsection{Memorisation}
+When determining whether to use memorisation or not, we have to consider the advantages and disadvantages of utilising memorisation in the context of Frog. On the one hand, memorisation will assumably reduce Frog's time to evaluate the function calls. On the other hand, utilising memorisation in Frog will increase the amount of storage needed. In addition, performing a lookup in the lookup table takes in worst-case O(n)(KILDE) when utilising a hash table. Hence, the lookup time should be less than the time used to evaluate the function call. Consequently, we present two criteria we belives needs to fulfil for memorisation in the context of Frog to be beneficial:
+\begin{enumerate}
+    \item The assumed time used to perform a lookup should be assumed to be less than the time used to perform the function call.
+    \item The assumed storage space needed for memorisation in Frog should be considered not to be remarkably high. 
+\end{enumerate}
+
+\para 
+Before discussing if Frog should use memorisation, we will introduce two new concepts: function call signature and function call description. 
+Firstly, a function call signature is the function name combined with the arguments. Note that the generic arguments are not a part of a function call signature. Hence the function call (fn:plus<<xsd:decimal>> 5 6) and (fn:plus<<xsd:integer>> 5 6) will have a equal function call signature. Secondly, in contrast to the function call signature, the function call description contains the generic arguments, the function name and arguments. Thus the function call (fn:plus<<xsd:decimal>> 5 6) and (fn:plus<<xsd:integer>> 5 6) will not have the same function call description.
+
+\para
+To further discuss if memorisation satisfies the two criteria, we must present a possible solution to accomplish memorisation in Frog. Two function calls the same function call signature will evaluate the same value since Frog performs the same calculations on the same arguments. However, function calls with different function call definitions may not have the same type on the evaluated value due to the use of generics. For instance, the function ex:plus2 from figure X will have a different return type which Frog must determine from the generic argument ?t. Hence, the function call (plus2<<xsd:decimal>> 5)  would evaluate to 15\^\^xsd:decimal while (plus2<<xsd:integer>> 5) would evaluate to 15\^\^xsd:integer. As illustrated, the evaluated value of two function call with an equal function call signature will be equal. However, the function call description may change the return value type.
+
+\begin{figure}
+    \centering
+    \begin{minipage}{.5\textwidth}
+      \centering
+      \includegraphics[scale=0.35]{simpleHash.jpg}
+      \caption{A generalisation of the lookup table when only considering the function call signature}
+      \label{fig:simpleHash}
+    \end{minipage}%
+    \begin{minipage}{.5\textwidth}
+      \centering
+      \includegraphics[scale=0.35]{lookUpGeneral.jpg}
+      \caption{A generlaisation of the lookup table consdiering the function call signature and definition}
+      \label{fig:lookUpGeneral}
+    \end{minipage}
+\end{figure}
+
+\para
+Thus, a table consisting of the function call signature and the result value will not be enough as it may result in Frog evaluating the value of a not approved type. Evaluating the function call (plus2<<xsd:decimal>> 5) would result in the lookup table shown in figure X. When trying to evaluate (plus2<<xsd:integer>> 5) afterwards Frog will utilise the lookup table since the function call signature is present; however this will result in Frog evaluating the function call to be 15\^\^xsd:decimal, which is not a valid value. Therefore, we present a solution in which Frog first checks if the function call signature is present and afterwards checks if the function call definition is present. Figure Y illustrates the general structure, while figure Z shows an instance containing the examples mentioned. 
+
+\begin{figure}
+    \centering
+    \begin{minipage}{.5\textwidth}
+      \centering
+      \includegraphics[scale=0.35]{lookUpAfterFirst.jpg}
+      \caption{Example lookup table only considering the function call signature}
+      \label{fig:lookUpAfterFirst}
+    \end{minipage}%
+    \begin{minipage}{.5\textwidth}
+      \centering
+      \includegraphics[scale=0.35]{exampelFulllookuptable.jpg}
+      \caption{Example lookup table considering the function call signature and defintion}
+      \label{fig:exampelFulllookuptable}
+    \end{minipage}
+\end{figure}
+
 
 \subsection{Evaluation in OTTR}
 Evaluation in OTTR refers to when OTTR should execute the function calls in the templates and instances. We suggest two approaches, firstly, an more eager approach, which evaluates the function call as soon as OTTR reaches the instance containing the function call before expanding the instance—in other words, substituting the function call with the evaluation result as soon as possible. Secondly, to evaluate the function call when it reaches a base template, a non-strict evaluation strategy. 
