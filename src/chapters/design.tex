@@ -20,6 +20,7 @@ The following prefixes will be utlised in the examples of this chapter:
 \section{Overview}
 
 \subsection{Concepts}
+\label{concepts}
 The addition of Frog to OTTR will introduce two new possibilities. Firstly, to make a personalised function that manipulated terms, and lastly, use these functions in the template body, named a function call. A function call will execute a function for some arguments, replacing the function call with a term. Therefore, a function call is treated as a term in OTTR and Frog, where the type is the return type of the function the function call executes. In addition, OTTR and Frog will handle a Frog function as a term. However, there is no natural type for a Frog function; as a result, we introduce a new type to the OTTR type system, the Function type. Section \ref{extension_ottr_type} goes in-depth on the new Function type. 
 
 \para
@@ -172,20 +173,22 @@ A function call in the HRS consist of four parts. Firstly, the optional :functio
 \section{Extension of the OTTR type system}
 \label{extension_ottr_type}
 \begin{itemize}
-    \item Introduce the problem that Frog propoce with regards the OTTR type system 
-    \item A function can be a parameter to a template and a argument to an instance (only the IRI to the function, we need to know if the IRI should be interpreted as a function or an IRI)
-    \item Give a informal presentation of the frog type 
     \item Refer to section about OTTR type system and how it is there to varify compatible typing and consisting typing. The newly introduced Function type also needs to ensure this. A function is compatible with  another function if it's a subtype of the other function.
-    \item A function F is a subtype of a function G if all the parameters on a given index in F is a supertype of the parameter on the same index in G. Additionaly the return type of F needs to be a subtype of G.
 \end{itemize}
 
-NB:Note that the Function type will be a subtype of 
+Section X mentions that Frog will introduce two new terms to OTTR, namely functions and function calls. A function call term consists of the function name, generic arguments and arguments as formally illustrated in section X (Overview/concepts). On the other hand, however, a function term will only consist of the function name, resulting in the term being an IRI referring to the function. Firstly be argue why typing is necessary for OTTR and Frog separately, and secondly, we will present how we type the new types.
 
 \para
-Section X (4.1) mentions that Frog introduces two new terms, functions and function calls. The function call term will not cause a problem since it, as previously mentioned, gets the type of the function it executes return type. However, we have not specified the type of a function term and the reason for that is that the function term introduces a new type, the function type.  
+Frog is, as mentioned, a high-level and typed language. Consequently, Frog will be able to take in and return functions; however, since Frog is typed as well, Frog needs to have the possibility to explicitly state that the parameter type and return type is a function. Thus Frog demands a function type. Furthermore, for validation reasons, which section X further elaborates, Frog must manage to check that the type of the argument is compatible with the type of the parameter type. For Frog to perform these compatible validations, the function calls must also have a type.
 
 \para
-The motivation to introduce functions as terms and with an own type is several. Firstly, we wish for Frog to be a high-order programming language; as a result, Frog needs to be able to take in functions as parameters and as the return value.  With the premise that Frog is a high-order language and a typed language, a function needs its type. Secondly, adding a function type makes it possible to use functions as parameters and arguments in  OTTR templates. Lastly, when a function is used as a term, it is represented with its function IRI. Therefore fn:plus could be interpreted as an IRI or the function that takes in two numbers and add them together. 
+The arguments for why the new terms need types are similar in OTTR and Frog. However, OTTR is not a programming language; hence it cannot be a high-level programming language. In addition, OTTR templates do not return anything. However, OTTR should, by definition, manage to receive every term as an argument value since mOTTR defines an argument value as a term. Consequently, functions and function calls must be valid arguments in OTTR. Thus, OTTR should permit parameter variables to depict a function, and these parameters can be typed explicitly, resulting in OTTR requiring a type for the function term. Additionally, the choice for OTTR represents a function term as an IRI, which results in an IRI having the possibility to be interpreted as an IRI or a function. OTTR having its own function type will also help determine how to interpret the IRI and make sure that the term is consistently used and typed. The reason for OTTR to type the function calls are equal to reason in Frog, namely to conduct validation. 
+
+\para
+The previous paragraphs voice the demand for a new type depicting the function terms. In contrast, they do not explicitly state how to solve the typing concerning the function calls. However, a function call represents another term, meaning that when evaluating a function call, we end up with another term. Hence, the type of a function call is the type of the term Frog evaluates it to be, resulting in the type of the function call being the return value of the function it is calling on. For instance, the type of the function call (ex:FtoC 39.5) has the type xsd:decimal since xsd:decimal is the return type of the ex:FtoC function; see figure x and y for the function definition. Therefore, we do not need to introduce a new type for the function call term.
+
+\para
+A section about the new function type.
 
 \subsection{Formal definition}
 OTTR needs one additional type when introducing Frog, namely \emph{the Function type}. The Function type takes in other types as arguments. In the \textbf{Function<$T_1$,...,$T_n$>},\textbf{ $T_1$,...,$T_{n - 1}$} is the type of the function parameters, and \textbf{$T_n$} is the type of the functions return value. Every Function needs at least one argument, the return value. 
@@ -193,14 +196,9 @@ OTTR needs one additional type when introducing Frog, namely \emph{the Function 
 \para
 A Function \textbf{Function$<P_1,...,P_n>$} is a subtype of \textbf{Function$<T_1,...,T_m>$} iff n == m, in other words, the length of the arguments are equal, and for an arbitrary \textit{i} between 1 and n - 1  \textbf{$P_i$} is supertype of \textbf{$T_i$}. Futheremore \textbf{$P_n$} needs to be a subtype of \textbf{$T_m$}
 
-\subsection{The type of a function call}
-The same as the return value.
+\subsection{Syntax of the function type}
 
-\subsection{The Function type in RDF Frog}
-
-\subsection{The Function type in }
-
-\subsection{Generic type}
+\section{Generic type}
 
 \begin{figure}[b]
     \centering
@@ -291,60 +289,35 @@ In addition to choosing memorisation, we also have to choose what evaluation str
         \item 1. a base function on the form of an XPath function since we the external libary need the values (and not the function) to be able to execute. Base functions that are specially made for frog will only execute the parts needed for instance the if-function will only execute the first argument that result in a boolean. If the two next arguments are function calls it will only return the function call in it self.
         \item 2. a function call is used to find the name of the function 
     \end{itemize}
+    \item Siden Frog vil bruke et eksternt biblotek (referer til at dette blir videre diskutert i implementasjons delen). Bruk av eksterne biblotek vil føre til en uforetsettbar tid. Dermed ønsker vi bruke det minst mulig. Fordelen med non-strict evaluation blir da at man ikke bruker tid på evaluere unødvendige verdier. 
 \end{itemize}
 
-\subsection{Memorisation}
-When determining whether to use memorisation or not, we have to consider the advantages and disadvantages of utilising memorisation in the context of Frog. On the one hand, memorisation will assumably reduce Frog's time to evaluate the function calls. On the other hand, utilising memorisation in Frog will increase the amount of storage needed. In addition, performing a lookup in the lookup table takes in worst-case O(n)(KILDE) when utilising a hash table. Hence, the lookup time should be less than the time used to evaluate the function call. Consequently, we present two criteria we belives needs to fulfil for memorisation in the context of Frog to be beneficial:
-\begin{enumerate}
-    \item The assumed time used to perform a lookup should be assumed to be less than the time used to perform the function call.
-    \item The assumed storage space needed for memorisation in Frog should be considered not to be remarkably high. 
-\end{enumerate}
+\subsection{Frog functions \& Base functions}
+As section \ref{concepts} briefly mentions, functions in Frog can be divided into two, the Frog function, which the user of Frog can make and some built-in base functions. One can consider the base function to be the primitive function of Frog. Base functions are the lowest procedures that Frog can perform and is defined as a function that performs a single task a set of values, such as multiplying two numbers together, retrieving the first element in a list, and concatenating two strings together. A Frog function will then, in reality, define a way to combine the base functions to perform a specific task. For instance, a function multiplying every number in a list with 5, illustrated by figure \ref{fig:list_multiplication}. 
+
+\begin{figure}
+    \lstinputlisting[language=turtle, firstnumber = 1]{examples/design/multiplyNumnber.frog}
+    \caption{A function multiplying every number in the list with 5. The result of evaluating the function call \lstinline{(ex:multiplyNumbers (1 2 3))} whould be (5 10 15)}
+    \label{fig:list_multiplication}
+\end{figure}
+
+
+\para
+Furthermore, we can classify base functions into two groups. Firstly, a set of functions operating on the basic types that utilise XPath functions and operations. Secondly, a set of functions operating on OTTR specific types, such as lists and special functions like the if-function. Frog will base the two groups of base functions on two different technologies, which Section \ref{implementation_evaluation} further elaborates. However, the two groups have one thing in common: they need to know at least one of their working values. What values to elevate is defined in the function\footnote{Some functions may not need to evaluate every value such as the if function, which only needs to evaluate the boolean value to decide which of the other values it should return. The function fn:plus, on the other hand, needs to know the number value of both of their arguments}. 
 
 \para 
-Before discussing if Frog should use memorisation, we will introduce two new concepts: function call signature and function call description. 
-Firstly, a function call signature is the function name combined with the arguments. Note that the generic arguments are not a part of a function call signature. Hence the function call (fn:plus<<xsd:decimal>> 5 6) and (fn:plus<<xsd:integer>> 5 6) will have a equal function call signature. Secondly, in contrast to the function call signature, the function call description contains the generic arguments, the function name and arguments. Thus the function call (fn:plus<<xsd:decimal>> 5 6) and (fn:plus<<xsd:integer>> 5 6) will not have the same function call description.
+TODO introducere ett nytt begrep base function operation som er definisjonen av den 1 oppgaven en base function gjennomfører. 
 
-\para
-To further discuss if memorisation satisfies the two criteria, we must present a possible solution to accomplish memorisation in Frog. Two function calls the same function call signature will evaluate the same value since Frog performs the same calculations on the same arguments. However, function calls with different function call definitions may not have the same type on the evaluated value due to the use of generics. For instance, the function ex:plus2 from figure X will have a different return type which Frog must determine from the generic argument ?t. Hence, the function call (plus2<<xsd:decimal>> 5)  would evaluate to 15\^\^xsd:decimal while (plus2<<xsd:integer>> 5) would evaluate to 15\^\^xsd:integer. As illustrated, the evaluated value of two function call with an equal function call signature will be equal. However, the function call description may change the return value type.
-
-\begin{figure}
-    \centering
-    \begin{minipage}{.5\textwidth}
-      \centering
-      \includegraphics[scale=0.35]{simpleHash.jpg}
-      \caption{A generalisation of the lookup table when only considering the function call signature}
-      \label{fig:simpleHash}
-    \end{minipage}%
-    \begin{minipage}{.5\textwidth}
-      \centering
-      \includegraphics[scale=0.35]{lookUpGeneral.jpg}
-      \caption{A generlaisation of the lookup table consdiering the function call signature and definition}
-      \label{fig:lookUpGeneral}
-    \end{minipage}
-\end{figure}
-
-\para
-Thus, a table consisting of the function call signature and the result value will not be enough as it may result in Frog evaluating the value of a not approved type. Evaluating the function call (plus2<<xsd:decimal>> 5) would result in the lookup table shown in figure X. When trying to evaluate (plus2<<xsd:integer>> 5) afterwards Frog will utilise the lookup table since the function call signature is present; however this will result in Frog evaluating the function call to be 15\^\^xsd:decimal, which is not a valid value. Therefore, we present a solution in which Frog first checks if the function call signature is present and afterwards checks if the function call definition is present. Figure Y illustrates the general structure, while figure Z shows an instance containing the examples mentioned. 
-
-\begin{figure}
-    \centering
-    \begin{minipage}{.5\textwidth}
-      \centering
-      \includegraphics[scale=0.35]{lookUpAfterFirst.jpg}
-      \caption{Example lookup table only considering the function call signature}
-      \label{fig:lookUpAfterFirst}
-    \end{minipage}%
-    \begin{minipage}{.5\textwidth}
-      \centering
-      \includegraphics[scale=0.35]{exampelFulllookuptable.jpg}
-      \caption{Example lookup table considering the function call signature and defintion}
-      \label{fig:exampelFulllookuptable}
-    \end{minipage}
-\end{figure}
-
+\subsection{Argumentation for lazy evaluation}
+\begin{itemize}
+    \item Det som kommer til å ta tid å gjennomfør vil være base functionene ettersom det er det "jobben" ligger
+    \item Bruk av eager evaluation vil evalure uttrykkene uansett om de trengs eller ikke, dermed vil Frog muligens bruke mer tid på å evaluere ting en nødvendig 
+    \item Siden memorisering er en del av lazy evlauation vil det også sørge for at et utrykk bare blir evaluert en gang hvis eksempel med med f.eks. (fn:plus<<xsd:integer>> (fn:plus<<xsd:integer>> 2 2) (fn:plus<<xsd:integer>> 2 2)), gjerne figurativt.
+    \item Verdier blir først evaluert når de trengs, ergo når man når er base function. Hver base function har da også definert hvilke verdier den trenger for å utføre sin operasjon. 
+\end{itemize}
 
 \subsection{Evaluation in OTTR}
-Evaluation in OTTR refers to when OTTR should execute the function calls in the templates and instances. We suggest two approaches, firstly, an more eager approach, which evaluates the function call as soon as OTTR reaches the instance containing the function call before expanding the instance—in other words, substituting the function call with the evaluation result as soon as possible. Secondly, to evaluate the function call when it reaches a base template, a non-strict evaluation strategy. 
+Evaluation in OTTR refers to when OTTR should execute the function calls in the templates and instances. We suggest two approaches, firstly, an more eager approach, which evaluates the function call as soon as OTTR reaches the instance containing the function call before expanding the instance—in other words, substituting the function call with the evaluation result as soon as possible. Secondly, to evaluate the function call when it reaches a base template, a non-strict evaluation strategy.
 
 \begin{figure}
     \lstinputlisting[language=turtle, firstnumber = 1]{examples/design/evlautionOTTR.ottr}
@@ -370,5 +343,6 @@ Nonetheless, utilising a non-strick approach to evaluate the function call may l
 \para
 In summary, a non-strict approach in OTTR combined with the memorisation in Frog will result in OTTR only evaluating a function call once and solely if OTTR needs the evaluated value for the expansion, hence removing unnecessary evaluations and repetitions. For this reason, we argue that a non-strict approach is a more suitable strategy for OTTR to decide when to evaluate the function calls compared to an eager approach. 
 
+\subsection{Summary}
 
 \section{Execution}
