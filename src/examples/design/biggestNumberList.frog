@@ -1,0 +1,6 @@
+
+def ex:biggestNumberList(xsd:integer ?n1, xsd:integer ?n2, List<xsd:integers> ?lst) -> List<xsd:integers> ::(
+    fn:if << List<xsd:integers> >> (fn:greaterThan ?n1 ?n2)
+        ?lst 
+        ()
+).

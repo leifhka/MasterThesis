@@ -1,5 +1,5 @@
 
-ex:multiplyNumbers(List<xsd:integer> ?lst) --> List<xsd:integer> :: (
+ex:multiplyNumbers(List<xsd:integer> ?lst) -> List<xsd:integer> :: (
     (fn:if<< List<xsd:integer> >> (fn:isEmpty ?lst)
         ()
         (fn:cons<<xsd:integer>>

@@ -24,7 +24,7 @@ The following prefixes will be utlised in the examples of this chapter:
 The addition of Frog to OTTR will introduce two new possibilities. Firstly, to make a personalised function that manipulated terms, and lastly, use these functions in the template body, named a function call. A function call will execute a function for some arguments, replacing the function call with a term. Therefore, a function call is treated as a term in OTTR and Frog, where the type is the return type of the function the function call executes. In addition, OTTR and Frog will handle a Frog function as a term. However, there is no natural type for a Frog function; as a result, we introduce a new type to the OTTR type system, the Function type. Section \ref{extension_ottr_type} goes in-depth on the new Function type. 
 
 \para
-A Frog function is constructed in two parts, the function head and the function body. The function body defines what the function does under execution and consist of only one element, a function call. On the other hand, the function head specifies the function IRI, parameters, return type and the generic arguments. The function IRI is an IRI to identify the function uniquely; in other words, the function name. Furthermore, the function body can consist of parameters. However, it is feasible to make a function containing an empty set of parameters. As Frog is typed, a parameter consists of a variable and a type. The variable represents a constant, which the function body can utilise as an argument or a function if the type of the variable is consistent with a function type. Moreover, the type is the type of the variable, which Frog utilises to perform validation.
+A Frog function is constructed in two parts, the function head and the function body. The function body defines what the function does under execution and consist of only one element, a function call. On the other hand, the function head specifies the function IRI, parameters, return type and the generic arguments. The function IRI is an IRI to identify the function uniquely; in other words, the function name. Furthermore, the function head can consist of parameters. However, it is feasible to make a function containing an empty set of parameters. As Frog is typed, a parameter consists of a variable and a type. The variable represents a constant, which the function body can utilise as an argument or a function if the type of the variable is consistent with a function type. Moreover, the type is the type of the variable, which Frog utilises to perform validation.
 
 \begin{figure}[h]
     \centering
@@ -62,10 +62,20 @@ Compared to OTTR, Frog's terms will be equal since functions and function calls 
 Furthermore, there are two types of functions in Frog, base function and a Frog function. However, a Frog user will only make frog functions but can utilise both base functions and Frog functions the same way in function calls. Base functions will be a combination of XPath[source link] functions, which will operate on some of the base types, and built-in java functions that will work on the complex types, such as the list types. Indifference to a normal Frog function, the function body of a base function will not contain a function call, but a rule which is an IRI reference either the XPath function or the built-in java function. An example of base functions are operators, such as addition and divide.
 
 \subsection{Abstract Model}
-\begin{itemize}
-    \item A function call substituts the parameter with the arguments and the generic variables with the generic arguments 
-    \item a function call needs to contain as many arguments as the functions have parameters. The same holds for generic argumetents. 
-\end{itemize}
+This section will present two notions: the definition of a correct function call and how Frog will execute a function call. 
+
+\para
+Firstly, we will define what a correct function call is. Frog considers a function call correct if the function calls function name corresponds to an existing function, and the arity of arguments corresponds with the arity of parameters in the corresponding function; the same holds for generic arguments and generic parameters. In addition, the type of an argument needs to be compatible with the type of the affiliated parameter, and a generic argument needs to be a subtype of the corresponding generic parameters type.
+
+\para
+Moreover, Frog will execute the function calls using substitution, meaning that the arguments in the function call replace their affiliated parameter in the corresponding function body. Similar to the arguments, the generic arguments will likewise replace their corresponding generic parameter in the function body. Frog will perform the substitution recursively until Frog reaches a state only containing constants and base functions. Figure \ref{fig:substitution_example} illustrates the recursive manner in which Frog substitutes the parameters and generic parameters with the function calls arguments and generic arguments. However, a function call on a Frog function may result in a none terminating recursion, resulting in Frog producing an error message.
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{substitution.jpg}
+    \caption{An example of how Frog will perform the substitution when executing a function call}
+    \label{fig:substitution_example}
+\end{figure}
 
 \section{Syntax}
 Section 3.5 introduced OTTRs two serialisations, wOTTR and sTOTTR. As described by Skjæveland et al., stOTTR is made to be a serialisation of OTTR, which is easy for humans two read and write, in addition to being compact\autocite[4]{SLKK_OTTR_2021}. On the other hand, the wOTTR serialisation offers the benefit of leveraging the existing W3C stack, in addition to tools for developing, publishing and maintaining templates\autocite[481-482]{SLKF_OTTR_2018}. Consequently, we propose that Frog also provides two serialisations.
@@ -276,24 +286,10 @@ As function calls can contain arguments which again is a function call regardles
 Validating a Frog function would be preform in several steps. The first natural step is to validate that every function call in the function body uses an existing function and that every used parameter is defined. Furthermore, Frog needs to confirm that every function call in the body has the right amount of arguments and that every argument has the correct type. If an argument is a function call in itself, we assume that the function's return type is correct and check if this return type is compatible with the parameter. We can assume that the function calls return type is correct because the next step is to validate precisely this. 
 
 \section{Evaluation}
-As mentioned, Frog will be a pure language, meaning that executing Frog will not produce any side effects. Thus there will be naturally to utilise memorisation. Consequently, memorisation will guarantee that Frog only executes the function calls with the equal signature (calling on the same function with the same arguments) once, removing unnecessary executions. 
-
-\para
-In addition to choosing memorisation, we also have to choose what evaluation strategies to utilise, eager or non-strict evaluation. As Frog uses memorisation, the natural choice is between eager evaluation with memorisation or lazy evaluation. In contrast to lazy evaluation, eager evaluation makes performing I/O operations and error handling more feasible. On the other hand, lazy evaluation benefits from not performing unnecessary evaluations and makes it possible to have streams. 
-\begin{itemize}
-    \item Lazy evaluation
-    \item Frog is pure 
-    \item Ensure no evaluation of unused functions 
-    \item When to we reach execution 
-    \item \begin{itemize}
-        \item 1. a base function on the form of an XPath function since we the external libary need the values (and not the function) to be able to execute. Base functions that are specially made for frog will only execute the parts needed for instance the if-function will only execute the first argument that result in a boolean. If the two next arguments are function calls it will only return the function call in it self.
-        \item 2. a function call is used to find the name of the function 
-    \end{itemize}
-    \item Siden Frog vil bruke et eksternt biblotek (referer til at dette blir videre diskutert i implementasjons delen). Bruk av eksterne biblotek vil føre til en uforetsettbar tid. Dermed ønsker vi bruke det minst mulig. Fordelen med non-strict evaluation blir da at man ikke bruker tid på evaluere unødvendige verdier. 
-\end{itemize}
+TODO:write introduction
 
 \subsection{Frog functions \& Base functions}
-As section \ref{concepts} briefly mentions, functions in Frog can be divided into two, the Frog function, which the user of Frog can make and some built-in base functions. One can consider the base function to be the primitive function of Frog. Base functions are the lowest procedures that Frog can perform and is defined as a function that performs a single task a set of values, such as multiplying two numbers together, retrieving the first element in a list, and concatenating two strings together. A Frog function will then, in reality, define a way to combine the base functions to perform a specific task. For instance, a function multiplying every number in a list with 5, illustrated by figure \ref{fig:list_multiplication}. 
+As section \ref{concepts} briefly mentions, functions in Frog can be divided into two, the Frog function, which the user of Frog can make and some built-in base functions. One can consider the base function to be the primitive function of Frog. Base functions are the lowest procedures that Frog can perform and is defined as a function that performs a single task on a set of values, such as multiplying two numbers together, retrieving the first element in a list, and concatenating two strings together. A Frog function will then, in reality, define a way to combine the base functions to perform a specific task. For instance, a function multiplying every number in a list with 5, illustrated by figure \ref{fig:list_multiplication}. 
 
 \begin{figure}
     \lstinputlisting[language=turtle, firstnumber = 1]{examples/design/multiplyNumnber.frog}
@@ -303,18 +299,35 @@ As section \ref{concepts} briefly mentions, functions in Frog can be divided int
 
 
 \para
-Furthermore, we can classify base functions into two groups. Firstly, a set of functions operating on the basic types that utilise XPath functions and operations. Secondly, a set of functions operating on OTTR specific types, such as lists and special functions like the if-function. Frog will base the two groups of base functions on two different technologies, which Section \ref{implementation_evaluation} further elaborates. However, the two groups have one thing in common: they need to know at least one of their working values. What values to elevate is defined in the function\footnote{Some functions may not need to evaluate every value such as the if function, which only needs to evaluate the boolean value to decide which of the other values it should return. The function fn:plus, on the other hand, needs to know the number value of both of their arguments}. 
+Furthermore, we can classify base functions into two groups. Firstly, a set of functions operating on the basic types that utilise XPath functions and operations. Secondly, a set of functions operating on OTTR specific types, such as lists and special functions like the if-function. Frog will base the two groups of base functions on two different technologies, which Section \ref{implementation_evaluation} further elaborates. However, the two groups have one thing in common: they need to know at least one of their working values. What values to elevate is defined in the function\footnote{Some functions may not need to evaluate every value, such as the if function, which only needs to evaluate the boolean value to decide which of the other values it should return. The function fn:plus, on the other hand, needs to know the number value of both of their arguments}. 
 
-\para 
-TODO introducere ett nytt begrep base function operation som er definisjonen av den 1 oppgaven en base function gjennomfører. 
+\subsection{Argumentation for Lazy evaluation}
+When it comes to Frog, the primary purpose of an evaluation strategy is to avoid unnecessary evaluations. Especially regarding base functions, as we assume that computing the base function is the most time-consuming process when evaluating a function call. Therefore we propose that Lazy evaluation is the most suitable evaluation strategy. 
 
-\subsection{Argumentation for lazy evaluation}
-\begin{itemize}
-    \item Det som kommer til å ta tid å gjennomfør vil være base functionene ettersom det er det "jobben" ligger
-    \item Bruk av eager evaluation vil evalure uttrykkene uansett om de trengs eller ikke, dermed vil Frog muligens bruke mer tid på å evaluere ting en nødvendig 
-    \item Siden memorisering er en del av lazy evlauation vil det også sørge for at et utrykk bare blir evaluert en gang hvis eksempel med med f.eks. (fn:plus<<xsd:integer>> (fn:plus<<xsd:integer>> 2 2) (fn:plus<<xsd:integer>> 2 2)), gjerne figurativt.
-    \item Verdier blir først evaluert når de trengs, ergo når man når er base function. Hver base function har da også definert hvilke verdier den trenger for å utføre sin operasjon. 
-\end{itemize}
+\para
+One of the benefits of Lazy evaluation is that it only will evaluate expression or function calls when Frog needs them. Hence we need to define when Frog needs to evaluate an expression. In the previous section, we discussed the correlation between base functions and frog functions and how base functions have defined which arguments need to be evaluated for the base function to execute their task. Therefore, we define that Frog needs to evaluate a function call only when a base function requires it.
+
+\para
+We assume that an Eager evaluation approach may have resulted in unnecessary operations compared to the Lazy evaluation, as shown in figure \ref{fig:leVSEe_example_frog}, which illustrates the contrasts in how many evaluations the function call \lstinline{(ex:biggestNumberList 5 6 (ex:multiplyNumbers (1)))} leads to regarding the two different evaluation strategies. The reason for the significant contrasts in eager and lazy evaluation, in this case, is that eager evaluation evaluates the arguments before substituting them into the function. The result of eager evaluation evaluating every argument is that the function call \lstinline{(ex:multiplyNumbers (1))} is evaluated even though never being used. In contrast, Lazy evaluation waits to evaluate the arguments until they are needed, resulting in function call \lstinline{(ex:multiplyNumbers (1))} never being evaluated. Note that in this case, the amount of evaluation needed when using Eager evaluation will increase linearly\footnote{to be precise 4n + 3, where n is the number of elements in the list} when appending elements to the list. In contrast, Lazy evaluation will have a constant amount of evaluations\footnote{to be precise 1}.
+
+\para
+An additional benefit of Lazy evaluation is memorisation, which is achievable due to Frog being a pure programming language. Memorisation will ensure that Frog only evaluates an expression once, retrieving the result from a look-up table if Frog previously has evaluated the function call. The function call \lstinline{(fn:plus<<xsd:integer>> (fn:plus<<xsd:integer>> 2 2) (fn:plus<<xsd:integer>> 2 2))} is a simple example of why memorisation in Frog is beneficial. Without memorisation, Frog would have needed to evaluate \lstinline{(fn:plus<<xsd:integer>> 2 2)} twice. In addition to being beneficial for Frog, memorisation will also be valuable for OTTR, as we discuss in the next section. 
+
+\para
+To summarise, we propose that Lazy evaluation is the most appropriate evaluation strategy for Frog since Lazy evaluation only evaluates the function calls when required and only once due to memorisation.
+
+\begin{figure}
+    \lstinputlisting[language=turtle, firstnumber = 1]{examples/design/biggestNumberList.frog}
+    \caption{A function taking in two number and a list, returning the list if the first number is bigger than the second, if not the function returns an empty list}
+    \label{fig:biggestNumberList}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{frogEvaluationExample.jpg}
+    \caption{Illustrates how the evaluation will look when using Eager evaluation compared to Lazy evaluation on the function call \lstinline{(ex:biggestNumberList 5 6 (ex:multiplyNumbers (1)))}, utilising the functions from figure \ref{fig:biggestNumberList} and \ref{fig:list_multiplication}.  The generic syntax is removed to save place. }
+    \label{fig:leVSEe_example_frog}
+\end{figure}
 
 \subsection{Evaluation in OTTR}
 Evaluation in OTTR refers to when OTTR should execute the function calls in the templates and instances. We suggest two approaches, firstly, an more eager approach, which evaluates the function call as soon as OTTR reaches the instance containing the function call before expanding the instance—in other words, substituting the function call with the evaluation result as soon as possible. Secondly, to evaluate the function call when it reaches a base template, a non-strict evaluation strategy.
@@ -344,5 +357,6 @@ Nonetheless, utilising a non-strick approach to evaluate the function call may l
 In summary, a non-strict approach in OTTR combined with the memorisation in Frog will result in OTTR only evaluating a function call once and solely if OTTR needs the evaluated value for the expansion, hence removing unnecessary evaluations and repetitions. For this reason, we argue that a non-strict approach is a more suitable strategy for OTTR to decide when to evaluate the function calls compared to an eager approach. 
 
 \subsection{Summary}
+As discussed, we assume that Frog and OTTR will benefit more from a Lazy evaluation than an Eager evaluation approach. In short, the conclusion is the same for both Frog and OTTR, namely that Lazy evaluation only evaluates a function call once and only if it is needed, removing unnecessary evaluations. We argue that this will result in Frog and OTTR using less time, in general, evaluating the function call compared with Eager evaluation. 
 
 \section{Execution}
