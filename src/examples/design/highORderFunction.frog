@@ -1,0 +1,4 @@
+
+def ex:useIntegerfunction (Function<xsd:integer, xsd:integer, xsd:integer> ?fn) -> xsd:integer :: (
+    ?fn 5 6 
+).

@@ -1,0 +1,4 @@
+
+ex:TemplateWithIntegerFunction [Function<xsd:integer, xsd:integer> ?fn, xsd:integer ?nb] :: {
+    ottr:Triple(ex:Test, ex:functionResult (?fn ?nb))
+} .

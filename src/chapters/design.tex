@@ -182,10 +182,6 @@ A function call in the HRS consist of four parts. Firstly, the optional :functio
 
 \section{Extension of the OTTR type system}
 \label{extension_ottr_type}
-\begin{itemize}
-    \item Refer to section about OTTR type system and how it is there to varify compatible typing and consisting typing. The newly introduced Function type also needs to ensure this. A function is compatible with  another function if it's a subtype of the other function.
-\end{itemize}
-
 Section X mentions that Frog will introduce two new terms to OTTR, namely functions and function calls. A function call term consists of the function name, generic arguments and arguments as formally illustrated in section X (Overview/concepts). On the other hand, however, a function term will only consist of the function name, resulting in the term being an IRI referring to the function. Firstly be argue why typing is necessary for OTTR and Frog separately, and secondly, we will present how we type the new types.
 
 \para
@@ -197,16 +193,36 @@ The arguments for why the new terms need types are similar in OTTR and Frog. How
 \para
 The previous paragraphs voice the demand for a new type depicting the function terms. In contrast, they do not explicitly state how to solve the typing concerning the function calls. However, a function call represents another term, meaning that when evaluating a function call, we end up with another term. Hence, the type of a function call is the type of the term Frog evaluates it to be, resulting in the type of the function call being the return value of the function it is calling on. For instance, the type of the function call (ex:FtoC 39.5) has the type xsd:decimal since xsd:decimal is the return type of the ex:FtoC function; see figure x and y for the function definition. Therefore, we do not need to introduce a new type for the function call term.
 
+\begin{figure}
+    \lstinputlisting[language=turtle, firstnumber = 1]{examples/design/highORderFunction.frog}
+    \caption{An example of an high-order function in Frog, which in this case takes in a function}
+    \label{fig:frog_high_example}
+\end{figure}
+
+\begin{figure}
+    \lstinputlisting[language=turtle, firstnumber = 1]{examples/design/useOfFunctionInTemplate.ottr}
+    \caption{An example of a OTTR template where one of the parameters are a function}
+    \label{fig:temlate_parameter_function}
+\end{figure}
+
+
 \para
-A section about the new function type.
+In contrast to the function call, the function terms require a new species, as discussed above, which both OTTR and Frog needs due to, among other things, them performing validation on the templates and functions. We define the new type as the function type. However, as figure X and Y depicts, both Frog and OTTR will use a variable of type Function as the function name in a function call. Hence, both OTTR and Frog require the Function type to state the types of the parameters and the return type. Furthermore, both OTTR and Frog should validate that the type of a function term is compatible with the parameter's function type. Therefore, we need to establish a compatible relation between function types. 
+
+\para 
+Consequently, similar to the List and LUB-type, the Function type will likewise take in type arguments. The argument will first contain the parameter types in the correct order and then the return type. As a consequence of a Frog function always having a return value, every Function type will at least contain one argument.
+
+\subsection{Syntax of the function type}
+The list and LUB-type have inspired the syntax for the Function type, both for the RDF and the Human Readable syntax\footnote{The formal definition of the function type, both in the wOTTR syntax and the sTOTTR syntax can be found in section \ref{parser}}. The wOTTR syntax for a list contains two elements, firstly the IRI rdf:List and secondly the type it holds. For instance, \lstinline{(rdf:List (rdf:List xsd:String))} represent the list containing lists containing strings and \lstinline{(ottr:LUB xsd:integer)} represent the LUB-type for xsd:integer. Likewise, the function type will be built-up by a list, where the first element is the IRI :Function, and the rest of the arguments denotes the type of the parameters and the return type. (:Function xsd:string xsd:integer) is an example of a function type representing a function taking in a function with one parameter of type string and returns a value of type integer. 
+
+\para
+On the other hand, sTOTTR depicts the LUB and list type with a keyword, LUB for the LUB-type and List and NEList for the two list types, and the argument inside <>. sTOTTR would express the examples given in the paragraph as \lstinline{List<List<xsd:string>>} for the list containing lists of strings and \lstinline{LUB<xsd:integer>} for the LUB-type of xsd:integer. As mentioned, the List and LUB-type syntax inspire the function type syntax for sTOTTR. Hence, the function type in sTOTTR will be built-up from a keyword, namely Function, continued with <> containing the arguments. However, because the function type may contain more than one argument, we have added that sTOTTR will seperate the arguments with a , .  The example of a function with one parameter of type string and returns a value of type integer will therefore look like \lstinline{Function<xsd:integer, xsd:string>}.
 
 \subsection{Formal definition}
 OTTR needs one additional type when introducing Frog, namely \emph{the Function type}. The Function type takes in other types as arguments. In the \textbf{Function<$T_1$,...,$T_n$>},\textbf{ $T_1$,...,$T_{n - 1}$} is the type of the function parameters, and \textbf{$T_n$} is the type of the functions return value. Every Function needs at least one argument, the return value. 
 
 \para
-A Function \textbf{Function$<P_1,...,P_n>$} is a subtype of \textbf{Function$<T_1,...,T_m>$} iff n == m, in other words, the length of the arguments are equal, and for an arbitrary \textit{i} between 1 and n - 1  \textbf{$P_i$} is supertype of \textbf{$T_i$}. Futheremore \textbf{$P_n$} needs to be a subtype of \textbf{$T_m$}
-
-\subsection{Syntax of the function type}
+A Function type \textbf{Function$<P_1,...,P_n>$} is compatible with the function type \textbf{Function$<T_1,...,T_m>$} iff n == m, in other words, the length of the parameters are equal, and for an arbitrary \textit{i} between 1 and n - 1  \textbf{$P_i$} is supertype of \textbf{$T_i$}. Futheremore \textbf{$P_n$} needs to be a subtype of \textbf{$T_m$}
 
 \section{Generic type}
 
