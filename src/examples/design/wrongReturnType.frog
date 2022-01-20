@@ -1,0 +1,4 @@
+
+def ex:wrongReturnType(xsd:String ?str) -> xsd:integer :: (
+    (fn:concat ?str ?str)
+).

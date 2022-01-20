@@ -62,13 +62,22 @@ Compared to OTTR, Frog's terms will be equal since functions and function calls 
 Furthermore, there are two types of functions in Frog, base function and a Frog function. However, a Frog user will only make frog functions but can utilise both base functions and Frog functions the same way in function calls. Base functions will be a combination of XPath[source link] functions, which will operate on some of the base types, and built-in java functions that will work on the complex types, such as the list types. Indifference to a normal Frog function, the function body of a base function will not contain a function call, but a rule which is an IRI reference either the XPath function or the built-in java function. An example of base functions are operators, such as addition and divide.
 
 \subsection{Abstract Model}
-This section will present two notions: the definition of a correct function call and how Frog will execute a function call. 
+This section will present three notions: the definition of a correct function call, how Frog will execute a function call and lastly, the dependency between functions and templates and functions. 
 
 \para
 Firstly, we will define what a correct function call is. Frog considers a function call correct if the function calls function name corresponds to an existing function, and the arity of arguments corresponds with the arity of parameters in the corresponding function; the same holds for generic arguments and generic parameters. In addition, the type of an argument needs to be compatible with the type of the affiliated parameter, and a generic argument needs to be a subtype of the corresponding generic parameters type.
 
 \para
 Moreover, Frog will execute the function calls using substitution, meaning that the arguments in the function call replace their affiliated parameter in the corresponding function body. Similar to the arguments, the generic arguments will likewise replace their corresponding generic parameter in the function body. Frog will perform the substitution recursively until Frog reaches a state only containing constants and base functions. Figure \ref{fig:substitution_example} illustrates the recursive manner in which Frog substitutes the parameters and generic parameters with the function calls arguments and generic arguments. However, a function call on a Frog function may result in a none terminating recursion, resulting in Frog producing an error message.
+
+\para 
+Furthermore, OTTR presents several concepts on dependencies between templates, such as that a template directly depends on a template signature if an instance of the template signature exists in the template body of the template\autocite[484]{SLKF_OTTR_2018}. Frog will expand these concepts with four new dependencies between functions and template and functions.
+\begin{enumerate}
+    \item Function A directly depends on function B if a function call of B occurs in A's function body. 
+    \item Function A depends on function B if function A directly depends on function C that either directly or transitively depends on function B. In short, the transitive closure between functions.
+    \item A template directly depends on a function F if the template body contains an instance with an argument that is a function call of F. 
+    \item Template T depends on function F if T either directly depends on the T or if T depends on a template that directly depends on F. 
+\end{enumerate}
 
 \begin{figure}
     \centering
@@ -213,7 +222,7 @@ In contrast to the function call, the function terms require a new species, as d
 Consequently, similar to the List and LUB-type, the Function type will likewise take in type arguments. The argument will first contain the parameter types in the correct order and then the return type. As a consequence of a Frog function always having a return value, every Function type will at least contain one argument.
 
 \subsection{Syntax of the function type}
-The list and LUB-type have inspired the syntax for the Function type, both for the RDF and the Human Readable syntax\footnote{The formal definition of the function type, both in the wOTTR syntax and the sTOTTR syntax can be found in section \ref{parser}}. The wOTTR syntax for a list contains two elements, firstly the IRI rdf:List and secondly the type it holds. For instance, \lstinline{(rdf:List (rdf:List xsd:String))} represent the list containing lists containing strings and \lstinline{(ottr:LUB xsd:integer)} represent the LUB-type for xsd:integer. Likewise, the function type will be built-up by a list, where the first element is the IRI :Function, and the rest of the arguments denotes the type of the parameters and the return type. (:Function xsd:string xsd:integer) is an example of a function type representing a function taking in a function with one parameter of type string and returns a value of type integer. 
+The list and LUB-type have inspired the syntax for the Function type, both for the RDF and the Human Readable syntax\footnote{The formal definition of the function type, both in the wOTTR syntax and the sTOTTR syntax, can be found in section \ref{parser}}. The wOTTR syntax for a list contains two elements, firstly the IRI rdf:List and secondly the type it holds. For instance, \lstinline{(rdf:List (rdf:List xsd:String))} represent the list containing lists containing strings and \lstinline{(ottr:LUB xsd:integer)} represent the LUB-type for xsd:integer. Likewise, the function type will be built-up by a list, where the first element is the IRI :Function, and the rest of the arguments denotes the type of the parameters and the return type. (:Function xsd:string xsd:integer) is an example of a function type representing a function taking in a function with one parameter of type string and returns a value of type integer. 
 
 \para
 On the other hand, sTOTTR depicts the LUB and list type with a keyword, LUB for the LUB-type and List and NEList for the two list types, and the argument inside <>. sTOTTR would express the examples given in the paragraph as \lstinline{List<List<xsd:string>>} for the list containing lists of strings and \lstinline{LUB<xsd:integer>} for the LUB-type of xsd:integer. As mentioned, the List and LUB-type syntax inspire the function type syntax for sTOTTR. Hence, the function type in sTOTTR will be built-up from a keyword, namely Function, continued with <> containing the arguments. However, because the function type may contain more than one argument, we have added that sTOTTR will seperate the arguments with a , .  The example of a function with one parameter of type string and returns a value of type integer will therefore look like \lstinline{Function<xsd:integer, xsd:string>}.
@@ -242,11 +251,11 @@ An excellent example of a function that needs several return types is the functi
     %\centering
     \begin{minipage}{.5\textwidth}
       \centering
-      \lstinputlisting[language=turtle, firstnumber = 1, basicstyle = \tiny]{examples/design/templateExp.ottr}
+      \lstinputlisting[language=turtle, firstnumber = 1, basicstyle = \small]{examples/design/templateExp.ottr}
     \end{minipage}
     \begin{minipage}{.5\textwidth}
       \centering
-      \lstinputlisting[language=turtle, firstnumber = 1, basicstyle = \tiny]{examples/design/resultOfTemplateEx.ttl}
+      \lstinputlisting[language=turtle, firstnumber = 1, basicstyle = \small]{examples/design/resultOfTemplateEx.ttl}
     \end{minipage}
     \caption{One the left: an example of how a template generating an fn:plus base function could have looked. One the right: the result of expanding the instance fn:plus(fn:plusInteger, xsd:integ), resulting in a Frog base function in the RDF serilaisation}
     \label{fig:generating_function_example}
@@ -263,7 +272,7 @@ Another approach is to make Frog a generic language, such as Java. To use a func
 
 \begin{figure}
     \centering
-    \lstinputlisting[language=frog, firstnumber = 1, basicstyle = \small]{examples/design/genericFrogFunction.frog}
+    \lstinputlisting[language=frog, firstnumber = 1]{examples/design/genericFrogFunction.frog}
     \caption{An example of a generic function, which takes in a number and adds it with itself three times. As the figure shows, we can utilise the generic arguments as parameter types, return type and generic arguments in the function body. }
     \label{fig:generic_function}
 \end{figure}
@@ -277,9 +286,27 @@ As presented in section X, Frog will use generics instead of generating function
 \para
 To conclude, this section has presented the problem of making functions that we wish to work with several types. The generating function templates and generic types were presented as solutions. However, the generating function templates make Frog dependent on  OTTR, and the user needs to write the functions as an OTTR template instead of the Frog syntax, which requires a new form of validation. 
 
-\section{Type checking}
-
 \section{Validation}
+OTTR validates the templates and instances before expanding the instances. The validation ensures the creator of the templates and instances that the syntax is correct and, among other things, that the instances refer to an existing template, with the correct arity of arguments and that the arguments are compatible typed with their corresponding parameter. When introducing Frog to OTTR, we open up the opportunity to use function calls as arguments in instances, as illustrated in figure Y(4.10); consequently, OTTR needs to validate that the function call is correct and has a compatible type with the corresponding parameter. 
+
+\para
+As we discussed in section X(4.3), the type of a function call is the corresponding function's return type. However, OTTR only validates that the function calls are correct and has the right type is not enough. For instance, the return type stated in the function head is not necessarily the actual return type, as shown in figure Y, where the stated return value is xsd:integer; however, the function call fn:concat is returning a value of type xsd:String. Hence, Frog needs to confirm that the function utilised by the instance is correct and that every function that the function depends on is correct.
+
+\begin{figure}
+    \centering
+    \lstinputlisting[language=frog, firstnumber = 1]{examples/design/wrongReturnType.frog}
+    \caption{An example of a generic function, which takes in a number and adds it with itself three times. As the figure shows, we can utilise the generic arguments as parameter types, return type and generic arguments in the function body. }
+    \label{fig:wrong_function}
+\end{figure}
+
+\para
+Consequently, we need to define what correctness means in the mean of a function. The correctness of a function consists of parts. Firstly, the function body, which is a function call, needs to be correct and secondly, a valid relation between the function body and function head. We have already defined a correct function call in section X; however, we need to define a valid relation between a function body and function head. We define a function to have a valid relation if the following statements are valid:
+\begin{itemize}
+    \item The return type of the function call in the function body is compatible with the return type stated in the function head. 
+    \item The function head has defined every parameter that occurs in the function body.
+    \item The function head has defined every generic parameter occurring in the function body.
+\end{itemize} 
+
 \begin{figure}
     \centering
     \includegraphics[scale=0.4]{validationFlow.jpg}
@@ -287,6 +314,24 @@ To conclude, this section has presented the problem of making functions that we 
     \label{fig:LC-explenations}
 \end{figure}
 
+\para 
+However, the correctness of a function refers to the validity of the function in isolation, but a function primarily depends on another frog function. Hence, we define that a function A is dependently correct if Frog considered  A and every function A depends on is correct. Due to dependently correct, Frog needs to recursively validate function until Frog reaches a base template. However, we deem that every function in a function library, which we define as a set of frog functions, loaded into OTTR will be utilised. Hence we argue that Frog should validate that every function is correct, and as a consequence, Frog will, by definition, likewise validate that every function is dependently correct. A valid function library is then a function library where every Frog function is dependently correct. 
+
+\para
+To summerise, Frog needs to validate the following points for each function for the function library to be a valid function library: 
+\begin{itemize}
+    \item The return type of the function call in the function body is compatible with the return type stated in the function head. 
+    \item The function head has defined every parameter that occurs in the function body.
+    \item The function head has defined every generic parameter occurring in the function body.
+    \item The function calls in the function body must refer to an existing function. An existing function is a function that either is a part of the function library or a base function. 
+    \item The function calls in the function body need to have the same arity of arguments as the arity of parameters in the affiliated function.
+    \item Every argument in the function body must be compatible with its corresponding parameter. 
+    \item The function calls in the function body need to have the same arity of generic arguments as the arity of generic parameters in the affiliated function.
+    \item Every generic argument in the function body must be a subtype of the corresponding generic parameter. 
+\end{itemize}
+
+
+\subsection{OLD}
 OTTR performs validation of the templates and instances before expanding the instances. The validation ensures the creator that the templates and instances are syntax correct, that instances refer to an existing template and that the terms provided as an argument for an instance are compatible with the templates parameter types. Therefore, when utilising a frog function in an instance, OTTR also needs to ensure the creator of the templates and instances that the function's return value is compatible with the type of the given parameter in the template. In conclusion, the end goal of the validation of Frog is to be certain that a function call returns a compatible term. 
 
 \para
@@ -374,5 +419,3 @@ In summary, a non-strict approach in OTTR combined with the memorisation in Frog
 
 \subsection{Summary}
 As discussed, we assume that Frog and OTTR will benefit more from a Lazy evaluation than an Eager evaluation approach. In short, the conclusion is the same for both Frog and OTTR, namely that Lazy evaluation only evaluates a function call once and only if it is needed, removing unnecessary evaluations. We argue that this will result in Frog and OTTR using less time, in general, evaluating the function call compared with Eager evaluation. 
-
-\section{Execution}

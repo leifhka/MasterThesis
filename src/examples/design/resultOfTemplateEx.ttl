@@ -3,7 +3,9 @@
 
 fn:plusInteger  a  :BaseFunction ;
         :rule   op:numeric-add ;
-        :type   [ :parameterType  ( xsd:integer xsd:integer ) ;
-                  :returnType     xsd:integer
-                ] ;
-        :typeVars ([:extend owl:real; :var xsd:integer]).
+        :type   [ :parameterType  ( xsd:integer 
+                                xsd:integer );
+                :returnType     xsd:integer
+              ] ;
+        :typeVars ([:extend owl:real; 
+                    :var xsd:integer]).
