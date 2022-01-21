@@ -9,14 +9,6 @@ In short, Frog will be a purely typed functional programming language, resulting
 The following prefixes will be utlised in the examples of this chapter:
 \lstinputlisting[language=turtle, firstnumber = 1]{examples/design/prefixesDesign.ttl}
 
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[scale=0.45]{programFlowDesign.jpg}
-    \caption{The basic flow of the program}
-    \label{fig:basic_program_flow}
-\end{figure}
-
 \section{Overview}
 
 \subsection{Concepts}
@@ -346,7 +338,8 @@ Consequently, we have divided the validation into three phases. Firstly, validat
     \label{fig:LC-explenations}
 \end{figure}
 
-\subsection{Validation warrnings}
+\subsection{Validation warnings}
+Messages in OTTR has four different severity degrees: info, warning, error and fatal. The validation points previously discussed would result in messages with the severity degree error. A result of a message with the severity degree error is that OTTR does not expand the graph. However, on the other hand, the severity degree warning will allow OTTR to expand. Frog will utilise the warning messages to state that the functions state something unnecessary, such as a parameter or a generic parameter defined in the function head, which the function body does not utilise.  
 
 
 \section{Evaluation}

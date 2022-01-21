@@ -1,5 +1,19 @@
 
 \chapter{Implementation}
+In this chapter, we will discuss the implementation of Frog. Most of the chapter will discuss how we have implemented Frog in isolation, while the last section, section X, will describe the changes performed in OTTR to integrate Frog. Lutra is the name of the implementation of OTTR(Lutra can be found on the following link) and is written in Java. Furthermore, Frog will be an integrated part of Lutra. Consequently, Frog will likewise be written in Java.
+
+\para
+Figure X illustrates the basic program flow of Frog as an isolated program. In short, the implementation will start with parsing the function either in the RDF syntax or in the Human readable syntax into a frog function java objects. The parsing of the syntaxes is described in section X. Secondly, Frog will validate the functions in the function library. Validating the function is a three-step process: transforming the function into a special RDF syntax and then performing validation with SPARQL on the first and second validation phase before proceeding to validate the third validating phase with a Java implementation. A furrow discussion on the implementation of the validation step is found in section Y. Lastly, Frog executes the function calls, as discussed in section Z. 
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.45]{programFlowDesign.jpg}
+  \caption{The basic flow of the Frog in isolation}
+  \label{fig:basic_program_flow}
+\end{figure}
+\para
+All three steps depend on the previous step, implying that the validation step requires the parsing to be complete without causing an error message. The execution step will only proceed if the validation step is completed without error messages.
+
 
 \section{Parser}
 \label{parser}
@@ -8,7 +22,7 @@
 \subsection{RDF Syntex}
 \label{implRDF}
 
-\section{Type Checking}
+\section{Validation}
 
 \section{Evaluation}
 \label{implementation_evaluation}
