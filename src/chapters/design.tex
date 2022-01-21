@@ -287,15 +287,15 @@ As presented in section X, Frog will use generics instead of generating function
 To conclude, this section has presented the problem of making functions that we wish to work with several types. The generating function templates and generic types were presented as solutions. However, the generating function templates make Frog dependent on  OTTR, and the user needs to write the functions as an OTTR template instead of the Frog syntax, which requires a new form of validation. 
 
 \section{Validation}
-OTTR validates the templates and instances before expanding the instances. The validation ensures the creator of the templates and instances that the syntax is correct and, among other things, that the instances refer to an existing template, with the correct arity of arguments and that the arguments are compatible typed with their corresponding parameter. When introducing Frog to OTTR, we open up the opportunity to use function calls as arguments in instances, as illustrated in figure Y(4.10); consequently, OTTR needs to validate that the function call is correct and has a compatible type with the corresponding parameter. 
+OTTR validates the templates and instances before expanding the instances. The validation ensures the creator of the templates and instances that the syntax is correct and, among other things, that the instances refer to an existing template, with the correct arity of arguments and that the arguments are compatible typed with their corresponding parameter. When introducing Frog to OTTR, we open up the opportunity to use function calls as arguments in instances, as illustrated in figure \ref{fig:temlate_parameter_function}; consequently, OTTR needs to validate that the function call is correct and has a compatible type with the corresponding parameter. 
 
 \para
-As we discussed in section X(4.3), the type of a function call is the corresponding function's return type. However, OTTR only validates that the function calls are correct and has the right type is not enough. For instance, the return type stated in the function head is not necessarily the actual return type, as shown in figure Y, where the stated return value is xsd:integer; however, the function call fn:concat is returning a value of type xsd:String. Hence, Frog needs to confirm that the function utilised by the instance is correct and that every function that the function depends on is correct.
+As we discussed in section \ref{extension_ottr_type}, the type of a function call is the corresponding function's return type. However, OTTR only validates that the function calls are correct and has the right type is not enough. For instance, the return type stated in the function head is not necessarily the actual return type, as shown in figure \ref{fig:wrong_function}, where the stated return value is xsd:integer; however, the function call fn:concat is returning a value of type xsd:String. Hence, Frog needs to confirm that the function utilised by the instance is correct and that every function that the function depends on is correct.
 
 \begin{figure}
     \centering
     \lstinputlisting[language=frog, firstnumber = 1]{examples/design/wrongReturnType.frog}
-    \caption{An example of a generic function, which takes in a number and adds it with itself three times. As the figure shows, we can utilise the generic arguments as parameter types, return type and generic arguments in the function body. }
+    \caption{An example of a function where the type of the value returned by the function and the return type stated in the function head is not compatible(fn:concat is a base funtion taking in to string and returning the concatinated string).)}
     \label{fig:wrong_function}
 \end{figure}
 
@@ -307,15 +307,8 @@ Consequently, we need to define what correctness means in the mean of a function
     \item The function head has defined every generic parameter occurring in the function body.
 \end{itemize} 
 
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.4]{validationFlow.jpg}
-    \caption{The flow of validating functions}
-    \label{fig:LC-explenations}
-\end{figure}
-
 \para 
-However, the correctness of a function refers to the validity of the function in isolation, but a function primarily depends on another frog function. Hence, we define that a function A is dependently correct if Frog considered  A and every function A depends on is correct. Due to dependently correct, Frog needs to recursively validate function until Frog reaches a base template. However, we deem that every function in a function library, which we define as a set of frog functions, loaded into OTTR will be utilised. Hence we argue that Frog should validate that every function is correct, and as a consequence, Frog will, by definition, likewise validate that every function is dependently correct. A valid function library is then a function library where every Frog function is dependently correct. 
+However, the correctness of a function refers to the validity of the function in isolation, but a function primarily depends on another frog function. Hence, we define that a function A is dependently correct if Frog considered  A and every function A depends on is correct. Due to dependently correct, Frog needs to validate function until Frog reaches a base template recursively. However, we deem that every function in a function library, which we define as a set of frog functions, loaded into OTTR will be utilised. Hence we argue that Frog should validate that every function is correct, and as a consequence, Frog will, by definition, likewise validate that every function is dependently correct. A second reason for Frog to validate every function in the function library is that Frog is a high-order programming language. Consequently, any function may be used as a parameter or return value; therefore, Frog needs to know that every possible function is correct. A valid function library is then a function library where every Frog function is dependently correct.
 
 \para
 To summerise, Frog needs to validate the following points for each function for the function library to be a valid function library: 
@@ -323,28 +316,38 @@ To summerise, Frog needs to validate the following points for each function for 
     \item The return type of the function call in the function body is compatible with the return type stated in the function head. 
     \item The function head has defined every parameter that occurs in the function body.
     \item The function head has defined every generic parameter occurring in the function body.
-    \item The function calls in the function body must refer to an existing function. An existing function is a function that either is a part of the function library or a base function. 
+    \item The function calls in the function body must refer to an existing function or an variable of the function type. An existing function is a function that either is a part of the function library or a base function. 
     \item The function calls in the function body need to have the same arity of arguments as the arity of parameters in the affiliated function.
-    \item Every argument in the function body must be compatible with its corresponding parameter. 
+    \item Every argument in the function body must be compatible with its corresponding parameter.\footnote{Frog will also validate that the function is a exisiting function if the corresponding parameter is of the function-type and the argument is not a variabel. } 
     \item The function calls in the function body need to have the same arity of generic arguments as the arity of generic parameters in the affiliated function.
     \item Every generic argument in the function body must be a subtype of the corresponding generic parameter. 
 \end{itemize}
 
-
-\subsection{OLD}
-OTTR performs validation of the templates and instances before expanding the instances. The validation ensures the creator that the templates and instances are syntax correct, that instances refer to an existing template and that the terms provided as an argument for an instance are compatible with the templates parameter types. Therefore, when utilising a frog function in an instance, OTTR also needs to ensure the creator of the templates and instances that the function's return value is compatible with the type of the given parameter in the template. In conclusion, the end goal of the validation of Frog is to be certain that a function call returns a compatible term. 
-
-\para
-Since Frog is a typed language and states the return type, the natural solution would be to check that the function's return type is compatible with the template given parameter type. However, to perform this validation, OTTR needs to validate several other parts of the function and the function call before confirming that the return value is compatible. Firstly, OTTR needs to verify that the function call utilises an exciting function; if the function does not exist, there is no need to proceed, as finding the return type of an unknown function is impossible. Secondly, OTTR needs to validate that the function call has the right amount of arguments and that the arguments are compatible with the function's parameters. Lastly, we can then validate the return value. 
+\subsection{The three phases of validation}
+The previous section has discussed what to validate in a Frog function. In addition to when Frog should validate the function library. However, the section does not discuss in which order Frog should perform the different validations. The goal is for Frog to deliver as many validation errors as conceivable. 
 
 \para
-However, stating that the functions return type is a particular type does not necessarily mean that the value returned by the function call is of that type. To guarantee the correctness of the return type, Frog must validate the body of the function. As the function's body is a function call, with possible function calls as arguments, Frog needs to validate the function's body in the same manner as OTTR did with the function call in the instance, with one addition. Frog needs to validate that every parameter used in the function body is declared in the function's definition. Performing validation with an undeclared parameter is unfishable, in addition to causing problems in the execution. 
+However, some of the validation points depend on one or several of the other validation points. For instance, to validate that the arity of arguments is correct, Frog needs to know that the associated function exists; since Frog compare the arity of arguments to the arity of parameters in the associated function, the same holds for validating the arity of generic arguments. Figure \ref{fig:validationDependencies} defines the dependency relationship between the validations points\footnote{Note that the dependency relationship between validations points is transitive}. 
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.6]{validationDependencies.jpg}
+    \caption{The dependencies between the different validations}
+    \label{fig:validationDependencies}
+\end{figure}
 
 \para
-As function calls can contain arguments which again is a function call regardless if it is in the in function body or the body of the function, OTTR and FROG needs to verify that the return type is compatible with the parameter type of the function's parameter. Nevertheless, if Frog validates every made function, and no errors have accrued, we know that every function we can use will return the correct value. Therefore, we propose that Frog first validates all of the functions, guaranteeing that every function returns a value of the type stated by the function before it validates the function calls in the OTTR templates. 
+Consequently, we have divided the validation into three phases. Firstly, validate that the function is an existing function or parameter of the function type and that the function head has defined the parameters and generic parameters utilised by the function body. Secondly, the return type defined by the function head matches the return type of the function body, and the arity of arguments and generic arguments in the function body is correct. Lastly, the arguments correspond with the compatible parameter, and the generic arguments are a subtype of the corresponding generic parameter. The flowchart in figure \ref{fig:LC-explenations} illustrates the three phases. 
 
-\para
-Validating a Frog function would be preform in several steps. The first natural step is to validate that every function call in the function body uses an existing function and that every used parameter is defined. Furthermore, Frog needs to confirm that every function call in the body has the right amount of arguments and that every argument has the correct type. If an argument is a function call in itself, we assume that the function's return type is correct and check if this return type is compatible with the parameter. We can assume that the function calls return type is correct because the next step is to validate precisely this. 
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.4]{validationFlow.jpg}
+    \caption{The phases and flow of validating a function}
+    \label{fig:LC-explenations}
+\end{figure}
+
+\subsection{Validation warrnings}
+
 
 \section{Evaluation}
 TODO:write introduction
