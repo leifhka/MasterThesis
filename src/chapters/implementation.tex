@@ -1,9 +1,9 @@
 
 \chapter{Implementation}
-In this chapter, we will discuss the implementation of Frog. Most of the chapter will discuss how we have implemented Frog in isolation, while the last section, section X, will describe the changes performed in OTTR to integrate Frog. Lutra is the name of the implementation of OTTR(Lutra can be found on the following link) and is written in Java. Furthermore, Frog will be an integrated part of Lutra. Consequently, Frog will likewise be written in Java.
+In this chapter, we will discuss the implementation of Frog. Most of the chapter will discuss how we have implemented Frog in isolation, while the last section, section X, will describe the changes performed in OTTR to integrate Frog. Lutra is the name of the implementation of OTTR and is written in Java\footnote{Lutra is open source and can be found on the following link \url{https://gitlab.com/ottr/lutra/lutra}}. Furthermore, Frog will be an integrated part of Lutra. Consequently, we have also written Frog in Java and utilised some of the same technologies since utilising the same technologies lets us reuse code written for OTTR. As a consequence of Frog utilising Lutras OTTR implementation, section X will briefly introduce the Lutra implementation of OTTR needed to understand the subsequent sections. 
 
 \para
-Figure X illustrates the basic program flow of Frog as an isolated program. In short, the implementation will start with parsing the function either in the RDF syntax or in the Human readable syntax into a frog function java objects. The parsing of the syntaxes is described in section X. Secondly, Frog will validate the functions in the function library. Validating the function is a three-step process: transforming the function into a special RDF syntax and then performing validation with SPARQL on the first and second validation phase before proceeding to validate the third validating phase with a Java implementation. A furrow discussion on the implementation of the validation step is found in section Y. Lastly, Frog executes the function calls, as discussed in section Z. 
+Figure \ref{fig:basic_program_flow} illustrates the basic program flow of Frog as an isolated program. In short, the implementation will start with parsing the function either in the RDF syntax or in the Human readable syntax into a frog function java objects. The parsing of the syntaxes is described in section X. Secondly, Frog will validate the functions in the function library. Validating the function is a three-step process: transforming the function into a special RDF syntax and then performing validation with SPARQL on the first and second validation phase before proceeding to validate the third validating phase with a Java implementation. A furrow discussion on the implementation of the validation step is found in section Y. Lastly, Frog executes the function calls, as discussed in section Z.
 
 \begin{figure}
   \centering
@@ -12,17 +12,75 @@ Figure X illustrates the basic program flow of Frog as an isolated program. In s
   \label{fig:basic_program_flow}
 \end{figure}
 \para
-All three steps depend on the previous step, implying that the validation step requires the parsing to be complete without causing an error message. The execution step will only proceed if the validation step is completed without error messages.
+All three steps depend on the previous step, implying that the validation step requires the parsing to be complete without causing an error message. Additionally, the execution step will only proceed if Frog completes the validation sept without any error messages.  
 
+\section{Overview OTTR implementation}
+As mentioned, Lutra is the implementation of OTTR. We will, in this section, discuss Lutras implementation revolving around templates and instances as we consider the implementation regarding tabOTTR and bOTTR irrelevant since Frog functions are to be utilised in the templates and instances. We can utilise Lutra to read and write templates and instances and expand the instances by using a command line interface\footnote{The command line interface for Lutra can be found her \url{https://ottr.xyz/\#Lutra}}. Furthermore, we can, as with Frog, consider the expansion of instances in Lutra to consist of three parts: first parsing, both the wOTTR and stOTTR syntax, secondly to validate the templates and instances and lastly, expanding the templates.
+
+\para
+Lutra parsing transforms the templates and instances written in the two serialisations into objects. Hence, classes for terms and types in Lutra already exist, which we can utilise in the Frog implementation due to OTTR and Frog using the same type and term system. We argue that utilising the same classes will make OTTR and Frog more seamless. Furthermore, both the parsing considering wOTTR and stOTTR utilises two different technologies. Firstly, wOTTR uses Jena. Jena or Apache Jena is a framework built for integrating Semantic Web and Linked Data technologies and applications in Java. Including parsing RDF data in different serialisations and executing SPARQL queries\cite{apache_jena}. Secondly, stOTTR uses ANTLR v4\footnote{\url{https://www.antlr.org}}. ANTLR v4 is a library made to describe grammar formally and translate the grammar into parsing code which is both executable and human-readable\cite{antlr4Book}. ANTLR does, in addition, produce error messages if the templates or instances are not compatible with the grammar. The grammar describing templates and instances in the stOTTR serialisation can be found in the sTOTTR documentation\cite{OTTR_stOTTR}.
+
+\para
+Lutra performs validation on the objects produced by the parsing by conducting several queries on the objects. Furthermore, Lutra's own defined queries engines describe the queries. However, Frog will not use the queries engines, as we will discuss in section \ref{implValidation}; therefore, we will not go in-depth on the validation part of Lutra. 
+
+\para
+TODO: something about expansion. 
 
 \section{Parser}
 \label{parser}
-\subsection{Human Readable Syntax}
-\label{implHRS}
 \subsection{RDF Syntex}
 \label{implRDF}
 
+\subsection{Human Readable Syntax}
+\label{implHRS}
+\subsubsection{Technologie}
+We will utilise ANTLR v4 to define the grammar of Frog functions and function calls, precisely as with OTTR.  Due to the Human Readable-Syntax(HRS) of Frog inheriting the syntax of terms and stOTTR applying ANTLR v4 lets us reuse some of the grammar specifications and the code from the stOTTR part of the Lutra implementation. 
+
+\subsubsection{Grammar}
+One advantage of Frog utilising the same terms and types as OTTR is using the declared ANTLR v4 grammar from stOTTR. In ANTLR, we can reuse previously defined grammar by importing them. Hence, the start of the Frog grammar file will consist of specifying the name of the grammar for this file, namely Frog, and that we should import the parsing rules from stOTTR. 
+
+\para
+\lstinputlisting[language=antlr, firstline = 1, lastline = 3]{examples/implementation/antlr4Frog.g4}
+
+
+\para
+However, before we continue to depict the Frog grammar, we will define the changes to the stOTTR that the inclusion of Frog has provoked. As previously discussed, Frog introduces one new type, namely the Function type. In stOTTR, the grammar defines the function type by the keyword Function continued with arguments representing the parameter types and return type.
+
+\para
+\lstinputlisting[language=antlr, firstline = 110, lastline = 120]{examples/implementation/antlr4stOTTR.g4}
+
+\para
+Furthermore, Frog introduces two new terms to OTTR: the function term and the function call. However, the syntax for a function term is equivalent to an IRI term; consequently, the function term does not change grammar since the distinction between an IRI term and a function term is semantic. On the other side, the function call introduces a new term in OTTR, which we need to define in the stOTTR grammar. A function call is built-up as a list surrounded by round brackets \backgroundText{( )} and space separating the elements. Furthermore, a function call consists of an optional function call definition, the function name, the generic terms, and an arbitrary number of terms. The generic arguments are surrounded by two angle brackets on each side \backgroundText{<< >>} and an arbitrary number of generic variables, such as a variable or a type.
+
+\para
+\lstinputlisting[language=antlr, firstline = 141, lastline = 165]{examples/implementation/antlr4stOTTR.g4}
+
+
+\para
+The Frog grammar can continue now that the stOTTR grammar has defined the new terms and types. A document containing HRS function definition can, as stOTTR, include an arbitrary number of RDF prefixes and base declaration, as defined by the Turtle(KILDE) serialisation of RDF, which the grammar formally names directives. In addition to directives, the HRS Frog document can also contain any number of functions.  
+
+\para
+\lstinputlisting[language=antlr, firstline = 5, lastline = 8]{examples/implementation/antlr4Frog.g4}
+
+\para
+A Frog function consists of a function head and a function body. The function body is, as earlier mentioned, a function call; consequently, the function body uses the parsing rule for the function call defined in the stOTTR grammar. On the contrary, the function head needs to define the parsing rules in the Frog grammar and consists of a definition, generic parameters, parameters and a return type. The definition consists of the token \backgroundText{def} and the name of the function. Furthermore, the generic parameters are defined as a variable, the token subtype and a type, and are separated with a comma and surrounded with angular brackets on each side, \backgroundText{<< >>}. Moreover, the Frog HRS grammar depicts parameters as a type followed by a variable and are separated with a comma and surrounded with round brackets on each side \backgroundText{( )}. Lastly, the return type consists of the token \backgroundText{->} and a type. The function head and function body are divided by the token \backgroundText{::}.
+
+\para
+\lstinputlisting[language=antlr, firstline = 10, lastline = 48]{examples/implementation/antlr4Frog.g4}
+
+\para
+Lastly, the Frog grammar needs to redefine what a type is by including the generic type in addition to redefining the LUB-type, such that the LUB-type can accept a generic type as an argument and not only a basic type. In ANTLR v4, we can override parsers rules from the imported grammar. ANTLR will always utilise the parser rule defined by the rules defined in the Frog rather than the rule defined in the stOTTR grammar.
+
+\para
+\lstinputlisting[language=antlr, firstline = 51, lastline = 66]{examples/implementation/antlr4Frog.g4}
+
+\para 
+Admittedly, we could have defined a new parsing rule named frogType which could either be a type or a genericVariable. However, by overwriting the type parsing rule type in the Frog grammar, we avoid defining the list and function type again in the Frog grammar.
+
+\subsubsection{From grammer to objects}
+
 \section{Validation}
+\label{implValidation}
 
 \section{Evaluation}
 \label{implementation_evaluation}
