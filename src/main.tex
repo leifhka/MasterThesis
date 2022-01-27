@@ -26,6 +26,10 @@
 \definecolor{almond}{rgb}{0.94, 0.87, 0.8}
 \definecolor{amaranth}{rgb}{0.9, 0.17, 0.31}
 \definecolor{brightlavender}{rgb}{0.75, 0.58, 0.89}
+\definecolor{javared}{rgb}{0.6,0,0} % for strings
+\definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
+\definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords
+\definecolor{javadocblue}{rgb}{0.25,0.35,0.75} % javadoc
 \newcommand{\lhk}[1]{\textcolor{red}{[#1]}}
 %\newcommand{\lhk}[1]{}
 \newcommand{\backgroundText}[1]{\colorbox{almond}{\textcolor{amaranth}{#1}}}
@@ -84,6 +88,20 @@ commentstyle=\color{gray}
     backgroundcolor=\color{white},
     frame=lines,
 }
+ 
+\lstset{language=Java,
+basicstyle=\ttfamily,
+keywordstyle=\color{javapurple}\bfseries,
+stringstyle=\color{javared},
+commentstyle=\color{javagreen},
+morecomment=[s][\color{javadocblue}]{/**}{*/},
+numbers=left,
+numberstyle=\tiny\color{black},
+stepnumber=2,
+numbersep=10pt,
+tabsize=4,
+showspaces=false,
+showstringspaces=false}
 
 
 

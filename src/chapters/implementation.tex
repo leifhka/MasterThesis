@@ -26,8 +26,40 @@ Lutra performs validation on the objects produced by the parsing by conducting s
 \para
 TODO: something about expansion. 
 
+\subsection{Result}
+
 \section{Parser}
 \label{parser}
+As formerly mentioned, the parsing step in Lutra's Frog implementation consists of transforming the function found in an RDF syntax or HRS document into function objects. Lutra has already created the terms and types classes\footnote{Term and Type are interfaces in the implementation; however, we have drawn them as classes} before the introduction of Frog, except the terms and types introduced by Frog, such as functionCall, which we have introduced into Lutra. Figure \ref{fig:FunctionClassDiagram} illustrates the classes involved when creating a function object.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.5]{FunctionClassDiagram.jpg}
+  \caption{A UML diagram of a function. Note that this diagram has removed unnecessary connections and is a simplification of the actual code.}
+  \label{fig:FunctionClassDiagram}
+\end{figure}
+
+\para 
+Furthermore, constructing the objects introduced to Lutra when introducing Frog consists of two phases:
+\begin{enumerate}
+  \item Retrieve the data from the Frog document
+  \item Using a builder\footnote{https://projectlombok.org/features/Builder} to create the objects that perform some basic validations, such that values are not null. 
+\end{enumerate}
+Due to Frog having two serialisations, the first phase has two implementations: one for the RDF syntax and one for the Human readable syntax. Section X and Y discuss the implementation of phase one for RDF syntax and HRS separately. Moreover, the second phase consists of constructing the objects by utilising a builder. Every class has a separate builder, such as a ParameterBuilder that produces parameter objects, which produces the objects and performs basic validation. We argue that performing validation in phase two of the parsing is more beneficial than phase one because phase two has one implementation compared to phase one with two implementations, resulting in less repetitive code. 
+
+\para
+The validation performed by the parsing step must not be mistaken with the validation discussed in section \ref{designValidation}. The discussion on the implementation of section \ref{designValidation} can be found in section \ref{implValidation}. Moreover, the validation performed in section \ref{designValidation} needs the context of the function library, such as checking that the function exists. On the other hand, validation performed in the parsing step only needs the object's context. For instance, validating that a function does not contain two parameters with the same variable name. 
+
+\para
+Figure \ref{fig:parserFlow} illustrates a general interaction between one of the parsers from phase one and the builder from phase two. In addition to showing the relationship between a builder and the subsequent class. As we see from the figure, the builder checks that every mandatory argument needed to create the class is present before creating the object. Thereafter, if present, the builder calls the validate method on the object. 
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.6]{parserFlow.jpg}
+  \caption{A sequent diagram showing the general interaction between a parser, builder and class. }
+  \label{fig:parserFlow}
+\end{figure}
+
 \subsection{RDF Syntex}
 \label{implRDF}
 
@@ -40,44 +72,67 @@ We will utilise ANTLR v4 to define the grammar of Frog functions and function ca
 One advantage of Frog utilising the same terms and types as OTTR is using the declared ANTLR v4 grammar from stOTTR. In ANTLR, we can reuse previously defined grammar by importing them. Hence, the start of the Frog grammar file will consist of specifying the name of the grammar for this file, namely Frog, and that we should import the parsing rules from stOTTR. 
 
 \para
-\lstinputlisting[language=antlr, firstline = 1, lastline = 3]{examples/implementation/antlr4Frog.g4}
+\lstinputlisting[language=antlr, firstline = 1, lastline = 3]{examples/implementation/Frog.g4}
 
 
 \para
 However, before we continue to depict the Frog grammar, we will define the changes to the stOTTR that the inclusion of Frog has provoked. As previously discussed, Frog introduces one new type, namely the Function type. In stOTTR, the grammar defines the function type by the keyword Function continued with arguments representing the parameter types and return type.
 
 \para
-\lstinputlisting[language=antlr, firstline = 110, lastline = 120]{examples/implementation/antlr4stOTTR.g4}
+\lstinputlisting[language=antlr, firstline = 110, lastline = 120]{examples/implementation/stOTTR.g4}
 
 \para
 Furthermore, Frog introduces two new terms to OTTR: the function term and the function call. However, the syntax for a function term is equivalent to an IRI term; consequently, the function term does not change grammar since the distinction between an IRI term and a function term is semantic. On the other side, the function call introduces a new term in OTTR, which we need to define in the stOTTR grammar. A function call is built-up as a list surrounded by round brackets \backgroundText{( )} and space separating the elements. Furthermore, a function call consists of an optional function call definition, the function name, the generic terms, and an arbitrary number of terms. The generic arguments are surrounded by two angle brackets on each side \backgroundText{<< >>} and an arbitrary number of generic variables, such as a variable or a type.
 
 \para
-\lstinputlisting[language=antlr, firstline = 141, lastline = 165]{examples/implementation/antlr4stOTTR.g4}
+\lstinputlisting[language=antlr, firstline = 141, lastline = 165]{examples/implementation/stOTTR.g4}
 
 
 \para
 The Frog grammar can continue now that the stOTTR grammar has defined the new terms and types. A document containing HRS function definition can, as stOTTR, include an arbitrary number of RDF prefixes and base declaration, as defined by the Turtle(KILDE) serialisation of RDF, which the grammar formally names directives. In addition to directives, the HRS Frog document can also contain any number of functions.  
 
 \para
-\lstinputlisting[language=antlr, firstline = 5, lastline = 8]{examples/implementation/antlr4Frog.g4}
+\lstinputlisting[language=antlr, firstline = 5, lastline = 8]{examples/implementation/Frog.g4}
 
 \para
 A Frog function consists of a function head and a function body. The function body is, as earlier mentioned, a function call; consequently, the function body uses the parsing rule for the function call defined in the stOTTR grammar. On the contrary, the function head needs to define the parsing rules in the Frog grammar and consists of a definition, generic parameters, parameters and a return type. The definition consists of the token \backgroundText{def} and the name of the function. Furthermore, the generic parameters are defined as a variable, the token subtype and a type, and are separated with a comma and surrounded with angular brackets on each side, \backgroundText{<< >>}. Moreover, the Frog HRS grammar depicts parameters as a type followed by a variable and are separated with a comma and surrounded with round brackets on each side \backgroundText{( )}. Lastly, the return type consists of the token \backgroundText{->} and a type. The function head and function body are divided by the token \backgroundText{::}.
 
 \para
-\lstinputlisting[language=antlr, firstline = 10, lastline = 48]{examples/implementation/antlr4Frog.g4}
+\lstinputlisting[language=antlr, firstline = 10, lastline = 48]{examples/implementation/Frog.g4}
 
 \para
 Lastly, the Frog grammar needs to redefine what a type is by including the generic type in addition to redefining the LUB-type, such that the LUB-type can accept a generic type as an argument and not only a basic type. In ANTLR v4, we can override parsers rules from the imported grammar. ANTLR will always utilise the parser rule defined by the rules defined in the Frog rather than the rule defined in the stOTTR grammar.
 
 \para
-\lstinputlisting[language=antlr, firstline = 51, lastline = 66]{examples/implementation/antlr4Frog.g4}
+\lstinputlisting[language=antlr, firstline = 51, lastline = 66]{examples/implementation/Frog.g4}
 
 \para 
 Admittedly, we could have defined a new parsing rule named frogType which could either be a type or a genericVariable. However, by overwriting the type parsing rule type in the Frog grammar, we avoid defining the list and function type again in the Frog grammar.
 
 \subsubsection{From grammer to objects}
+As mentioned, ANTLR4 generates classes and objects based on the defined Frog grammar, which Lutra utilises to parse the function document into function objects. ANTLR turns the document provided into a parse-tree and offers two different techniques for traversing the parsing three, namely parse-tree listeners and parse-tree visitors. Figure \ref{fig:parse_tree_example} is an example of a parsing three produced by ANTLR. Lutra's OTTR implementation utilises the visitor method for traversing the parsing tree. When expanding Lutra with the addition of Frog, it is beneficial to apply the same method since we can reuse the code written for Lutra's stOTTR parsing in the parsing of the HRS of Frog. 
+
+\para
+ANTLR's visitor technique lets us control the traversing by explicitly calling methods to visit children(KILDE antlr book). From Figure \ref{fig:parse_tree_example}, the functionHead's children are definition, genericParameter, parameters and returnType. ANTRL generates a base visitor class with an interface containing one visit method for each parsing rule in the grammar to perform the traversing. In the Frog grammar case, ANTLR generates a class FrogBaseVisitor that offers methods like visitParameter and visitFunction. However, the base visitor implementation of the visit methods only contains one action, to visit the children. Hence, we have made parser classes in Lutra that expand the FrogBaseVisitor and override the methods to define the method and create an object of the belonging class. For instance, example \ref{parameterParser} shows the class FParameterVisitor containing the method visitParameter since a parameter consists of a type and a variable. A parameter has two children a variable: a variable, which is a term, and a type. Hence the visitParameter needs to use the term and type parser to parse the children.
+
+\begin{figure}
+  \begin{example}
+      \label{parameterParser}
+      An example of a parser class, this parser class i the parser for a parameter. The FBaseParserVisitor class extends the FrogBaseVisitor, wrapping the generic argument into a result class (class FBaseParserVisitor<T> extends FrogBaseVisitor<Result< T > >).  
+  \end{example}
+  \lstinputlisting[language=java, firstnumber = 1, basicstyle=\small]{examples/implementation/FParameterParser.java}
+\end{figure}
+
+\para
+Notably, Lutra already contains several parsing classes and visitor methods due to the stOTTR implementation, such as visitList and visitListType. Consequently, the addition of Frog resulted in expanding some of the parsing classes made for stOTTR, such as introducing a visitFunctionType method to the type parser class, in addition to introducing parsing classes for the Frog function-specific objects, such as function and generic parameters. 
+
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.23]{antlr4_parse_tree_example.png}
+  \caption{The generated parser-tree made by ANTLR4s java implementation on the function in figure \ref{fig:generic_function}}
+  \label{fig:parse_tree_example}
+\end{figure}
 
 \section{Validation}
 \label{implValidation}
