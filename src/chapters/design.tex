@@ -1,9 +1,9 @@
 
 \chapter{Design} %can also be named discussion
-OTTR proposes various benefits, such as abstraction and Separation of design and content. However, we suggest that appending a programing language, Frog, that makes it feasible to manipulate terms to OTTR will strengthen several benefits, as previously discussed.  In this chapter, we will discuss how the design of Frog.
+As mentioned in chapter \ref{intro}, OTTR proposes various benefits, such as \emph{abstraction} and \emph{Separation of design and content}. However, we argue that it is possible to strengthen the benefits of OTTR. Hence, we propose including a typed functional programing language, namely Frog. Frog will make it feasible to construct functions, which we can use directly in the OTTR templates and instances to manipulate terms. This chapter discusses our design of Frog, a typed programming language that seamlessly integrates with OTTR.
 
-\para 
-In short, Frog will be a purely typed functional programming language, resulting in Frog only allowing pure functions. The advantage of Frog being pure is that Frog can utilise memorisation on the functions. Section X (Evaluation) discusses why memorisation is an advantage in Frog. In addition to being pure, Frog will additionally be a typed language, resulting in the function explicitly stating the type of its parameters and return type. OTTR requires Frog to be typed as OTTR needs to know the type of a given term to perform validation of templates and instances, which OTTR performs before expanding the instances, implying that Frog must confirm a Functions return type. Section Y (Validation) further elaborates on the necessity of Frog being typed. 
+\para
+In addition to being typed and functional, Frog will only allow pure functions, thus becoming a purely typed functional programming language. As a consequence of Frog becoming pure, Frog can utilise memorisation combined with lazy evaluation when executing function calls, as section \ref{evaluation} elaborates. Furthermore, OTTR performs several validations on templates and instances. One of these validation inspects that the arguments utilised in the instances are compatible with their corresponding template parameter. Expanding OTTR with Frog will allow function calls as instance arguments. Consequently, Frog needs to validate the functions and function calls discussed in section Y(validation).
 
 \para
 The following prefixes will be utlised in the examples of this chapter:
@@ -13,10 +13,11 @@ The following prefixes will be utlised in the examples of this chapter:
 
 \subsection{Concepts}
 \label{concepts}
-The addition of Frog to OTTR will introduce two new possibilities. Firstly, to make a personalised function that manipulated terms, and lastly, use these functions in the template body, named a function call. A function call will execute a function for some arguments, replacing the function call with a term. Therefore, a function call is treated as a term in OTTR and Frog, where the type is the return type of the function the function call executes. In addition, OTTR and Frog will handle a Frog function as a term. However, there is no natural type for a Frog function; as a result, we introduce a new type to the OTTR type system, the Function type. Section \ref{extension_ottr_type} goes in-depth on the new Function type. 
+The addition of Frog to OTTR will introduce two new possibilities. Firstly, to make a personalised function that manipulated terms, and secondly, use these functions as arguments in the instances through function calls. A function call will execute a function for some arguments, replacing the function call with another term that is not a function call. Therefore, OTTR and Frog treat a function call as a term, with the function call term's type being equivalent to the corresponding function's return type. In addition to function calls, OTTR and Frog will handle a Frog function as a term, represented by the function's name, which will be an IRI. However, OTTR has no established type to separate functions from other terms, such as IRIs. Consequently, we introduce a new type to the OTTR type system, the Function type. This function type helps OTTR and Frog, among other things, to decide whether they should interpret an IRI term as a function or an IRI. Section \ref{extension_ottr_type} goes in-depth on the new Function type. 
 
 \para
-A Frog function is constructed in two parts, the function head and the function body. The function body defines what the function does under execution and consist of only one element, a function call. On the other hand, the function head specifies the function IRI, parameters, return type and the generic arguments. The function IRI is an IRI to identify the function uniquely; in other words, the function name. Furthermore, the function head can consist of parameters. However, it is feasible to make a function containing an empty set of parameters. As Frog is typed, a parameter consists of a variable and a type. The variable represents a constant, which the function body can utilise as an argument or a function if the type of the variable is consistent with a function type. Moreover, the type is the type of the variable, which Frog utilises to perform validation.
+A Frog function is constructed in two parts, the function head and the function body. The function body defines what the function does under execution and consist of only one element, a function call. On the other hand, the function head specifies the function IRI, parameters, return type and the generic arguments. The function IRI is an IRI to identify the function uniquely; in other words, the function name. Furthermore, the function head consists of an arbitrary number of parameters. As a consequence of Frog being typed language, Frog needs to know the parameter type: therefore, the parameter consists of a parameter type and a parameter variable. The parameter variable represents a constant, and Frog can utilise this parameter variable as arguments in the function body. Additionally, if the parameter type is compatible with the Function type, Frog can use the subsequent parameter variable as the function in the function calls found in the function body. Moreover, the parameter type is also needed when conducting validation, as discussed in section \ref{designValidation}.
+
 
 \begin{figure}[h]
     \centering
@@ -26,10 +27,16 @@ A Frog function is constructed in two parts, the function head and the function 
 \end{figure}
 
 \para
-Additionally, the Function head specifies a possibly empty set of generic parameters, consisting of a variable and a type, much like an ordinary parameter. However, in this case, the variable depicts a type, and the type represents a subtype relationship between the variable and the type. A generic variable can be occurring in a or as a parameter type, a return type and a generic argument in the function body. Lastly, the function head specifies the return type, representing the type of the value that the function returns. The return type needs to be compatible with the return type of the function body. 
+Additionally, the Function head specifies a possibly empty set of generic parameters, each consisting of a variable and a type, much like an ordinary parameter. However, in this case, a generic variable depicts a type that is a subtype of its belonging type. A generic variable can occur in three places in a function:
+\begin{enumerate}
+    \item As a parameter type in the function head.
+    \item As the return type in the function head.
+    \item As a generic argument in the function calls found in the function body.   
+\end{enumerate}
+Finally, the function head specifies the return type, representing the type of the value that the function returns. The return type needs to be compatible with the return type of the function body. 
 
 \para
-Furthermore, a function call consists of a function IRI, arguments and generic arguments. The function IRI defines which functions for a set of arguments and generic arguments Frog should execute. An argument can be a constant or parameter variable, which must be compatible with the function's associated parameter. In contrast, a generic argument can either be a generic variable or a type compatible with the function's affiliated generic parameter. Note that both the arguments and generic arguments may be empty. Figure \ref{fig:functionCall_and_function} is a visual representation of a function and a function call structure. 
+Furthermore, a function call consists of a function name, arguments and generic arguments. Firstly, the function name defines which functions to execute. The function name can either be an IRI referring to a function's name or a parameter variable of the function type, as elaborated in the last paragraph. Secondly, the function call arguments can either be constants or parameter variables, i.e. a term, as illustrated by figure X(term). Lastly, a function call contains an arbitrary number of generic arguments. A generic argument can either be a generic variable or a type. Furthermore, the generic argument needs to be a subtype of the affiliated function's corresponding generic parameter. Note that both the arguments and the generic arguments may be empty. Figure \ref{fig:functionCall_and_function} is a visual representation of the function and function call structure.
 
 \begin{figure}
     \centering
@@ -48,27 +55,27 @@ Furthermore, a function call consists of a function IRI, arguments and generic a
 \end{figure}
 
 \para
-Compared to OTTR, Frog's terms will be equal since functions and function calls will become valid terms in OTTR; consequently, functions and function calls valid terms in Frog. Figure \ref{fig:term} illustrates what a term is in Frog. On the other hand, types have a difference between OTTR and Frog, namely generic types. Generic types will only be available in Frog. Hence the types in Frog will consist of all the types in OTTR in addition. Figure \ref{fig:type} depicts a Frog type. Note that when we talk about types in this chapter, we talk about Frog types if not specified.
+The introduction of Frog will expand the OTTR term system, with function call terms and function terms. Frog will utilise the same term system; consequently, the terms in Frog and OTTR are equal. Figure \ref{fig:term} illustrates what a term is in Frog. On the other hand, there is a slight difference between a valid Frog type and OTTR type due to the addition of generics in Frog. A valid Frog type can either be a generic type, in other words a generic variable, or an OTTR type, meaning that type system in Frog is a superset of OTTR's type system. As previously mentioned, a new type, the function type, will be introduced to the OTTR type system with the addition of Frog, implying that the Frog type system also includes the function type. Figure \ref{fig:type} depicts a Frog type. Note that we talk about Frog types if not specified otherwise when discussing types in this chapter. We argue that because every valid term and type in OTTR is valid in Frog, the inclusion of Frog will be seamless; due to that, there is no need to translate the OTTR terms and types into Frog types and visa versa. Having no translation is beneficial for the programmers of the templates and functions since they do not need to know the translation between the types.  
 
 \para
-Furthermore, there are two types of functions in Frog, base function and a Frog function. However, a Frog user will only make frog functions but can utilise both base functions and Frog functions the same way in function calls. Base functions will be a combination of XPath[source link] functions, which will operate on some of the base types, and built-in java functions that will work on the complex types, such as the list types. Indifference to a normal Frog function, the function body of a base function will not contain a function call, but a rule which is an IRI reference either the XPath function or the built-in java function. An example of base functions are operators, such as addition and divide.
+Furthermore, there are two types of functions in Frog: base and Frog functions. The difference between base functions and Frog functions is that base functions does not contain a function body. Instead, base functions contain an IRI, which refers to an operation. Moreover, the base function will be a combination of XPath functions and built-in java functions. On the one hand, the XPath functions will be working on the terms of the base type, offering functions such as addition and concatenation. On the other hand, the built-in java functions will work on the terms with a complex type, such as removing the first element of a list. A base function will be built into the Frog and OTTR system, and we can execute them in the same manner as with Frog functions via a function call. Note that a Frog programmer cannot create base functions, only Frog functions.
 
 \subsection{Abstract Model}
-This section will present three notions: the definition of a correct function call, how Frog will execute a function call and lastly, the dependency between functions and templates and functions. 
+This section presents three notions: the definition of a correct function call, how Frog will execute a function call and finally, the dependency regarding functions and templates. 
 
 \para
-Firstly, we will define what a correct function call is. Frog considers a function call correct if the function calls function name corresponds to an existing function, and the arity of arguments corresponds with the arity of parameters in the corresponding function; the same holds for generic arguments and generic parameters. In addition, the type of an argument needs to be compatible with the type of the affiliated parameter, and a generic argument needs to be a subtype of the corresponding generic parameters type.
+Firstly, we will define what a \emph{correct function call} is. Frog considers a function call correct if the function call's function name corresponds to an existing function or a parameter of the function type. Additionally, the arity of arguments needs to be equal to the arity of parameters in the affiliated function; the same holds for generic arguments and generic parameters. In addition, the type of an argument needs to be compatible with the type of the affiliated parameter, and a generic argument needs to be a subtype of the corresponding generic parameters type.
 
 \para
-Moreover, Frog will execute the function calls using substitution, meaning that the arguments in the function call replace their affiliated parameter in the corresponding function body. Similar to the arguments, the generic arguments will likewise replace their corresponding generic parameter in the function body. Frog will perform the substitution recursively until Frog reaches a state only containing constants and base functions. Figure \ref{fig:substitution_example} illustrates the recursive manner in which Frog substitutes the parameters and generic parameters with the function calls arguments and generic arguments. However, a function call on a Frog function may result in a none terminating recursion, resulting in Frog producing an error message.
+Moreover, Frog will execute the function calls using substitution, meaning that the arguments in the function call replace their affiliated parameter in the corresponding function's function body. Similar to the arguments, the generic arguments will replace their corresponding generic parameter in the function body. Frog will perform the substitution recursively until Frog reaches a state only containing constants and base functions. Figure \ref{fig:substitution_example} illustrates the recursive manner in which Frog substitutes the parameters and generic parameters with the function calls arguments and generic arguments. However, a function call on a Frog function may result in a none terminating recursion, resulting in Frog producing an error message.
 
 \para 
-Furthermore, OTTR presents several concepts on dependencies between templates, such as that a template directly depends on a template signature if an instance of the template signature exists in the template body of the template\autocite[484]{SLKF_OTTR_2018}. Frog will expand these concepts with four new dependencies between functions and template and functions.
+Furthermore, OTTR presents several concepts on dependencies between templates. For example, a template directly depends on a template signature if an instance of the template signature exists in the template body of the template\autocite[484]{SLKF_OTTR_2018}. Frog will expand these concepts with four new dependencies between functions and template and functions.
 \begin{enumerate}
-    \item Function A directly depends on function B if a function call of B occurs in A's function body. 
-    \item Function A depends on function B if function A directly depends on function C that either directly or transitively depends on function B. In short, the transitive closure between functions.
-    \item A template directly depends on a function F if the template body contains an instance with an argument that is a function call of F. 
-    \item Template T depends on function F if T either directly depends on the T or if T depends on a template that directly depends on F. 
+    \item Function A \emph{directly depends} on function B if a function call of B occurs in A's function body. 
+    \item Function A \emph{depends} on function B if function A directly depends on function C that either directly or transitively depends on function B. In short, the transitive closure between functions.
+    \item A template \emph{directly depends} on a function F if the template body contains an instance with an argument that is a function call of F. 
+    \item Template T \emph{depends} on function F if T either directly depends on the F or if T depends on a template that directly depends on F. 
 \end{enumerate}
 
 \begin{figure}
@@ -344,6 +351,7 @@ Messages in OTTR has four different severity degrees: info, warning, error and f
 
 
 \section{Evaluation}
+\label{evaluation}
 TODO:write introduction
 
 \subsection{Frog functions \& Base functions}
