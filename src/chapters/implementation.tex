@@ -26,7 +26,17 @@ Lutra performs validation on the objects produced by the parsing by conducting s
 \para
 TODO: something about expansion. 
 
-\subsection{Result}
+\subsection{Result and MessageHandle}
+This section briefly introduces the classes MessageHandler and Result, two central classes in the Lutra implementation for handling messages produced to the user. The implementation of Frog applies these two classes, and they are present in several of the examples in this chapter. 
+
+\para
+The MessageHandler and Result class rely on messages, which Lutra stores in a Message class. A Message class contains a severity, a message and a possible empty stack trace. The severity of a message can either be info, warning, error and fatal, where info is the lowest degree of severity, and fatal is the height. When Lutra prints a message to the user, Lutra includes the severity degree, as illustrated by figure X.  
+
+\para
+Lutra applies MessageHandler as a means to collect messages and handle how to print them to the terminal. Furthermore,  Lutra uses the Result class when calculating values that may result in the calculation failing, hence, producing a message. The Result class works as a wrapper class for Optional\footnote{\url{docs.oracle.com/en/java/javase/16/docs/api/java.base/java/util/Optional.html}}; as a Result class consists of an Optional value and a trace, which is a possibly empty set of messages produced when working on the result. The Result class implements the methods implemented in the Optional class, such as map and filter. In addition to some Result specific methods often regarding messages, for instance, mapOrElse and addMessage.
+
+\section{FunctionStore}
+The FunctionStore is a central class in Lutra's Frog implementation, and Lutra utilises this class in every step of the three-step step of Frog in the implementation. Furthermore, a FunctionStore object is a counterpart to a function library. The FunctionStore offers an interface that, among other things, offers to add functions objects to the store, conduct validation on the functions and execute function calls. The implementation of some of the different methods are shown in their belonging steps section. For instance, Section X, which discusses the implementation, elaborates on the  FuncsionStores validation method. 
 
 \section{Parser}
 \label{parser}
