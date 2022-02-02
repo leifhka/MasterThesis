@@ -136,6 +136,31 @@ Notably, Lutra already contains several parsing classes and visitor methods due 
 
 \section{Validation}
 \label{implValidation}
+This section presents the implementation of the validation elaborated on in Section X. Note that Lutra only performs the validation on the frog function if Lutra completes the parsing stem without producing messages with severity degree Error or higher. Furthermore, as figure Y illustrates, Lutra executes the validation in three phases, and a phase is only executed if the previous phases are performed without any validations errors. Note that we have moved the implementation of step 6, which checks that the function has the correct return type. In short, we had to move step 6 in the implementation due to limitations in the desired technology, namely SPARQL. Section X discusses why this move is inevitable.
+
+\subsection{Technology}
+As mentioned, Lutra utilises a custom created queries engine built-in Java made to perform validation on OTTR templates and instances. Hence, when working with validation and OTTR, one must learn this custom created query engine. However, we argue that using established technologies compared to Lutra's custom created queries is more beneficial for several reasons. 
+
+\para
+Before stating the benefits, we need to specify what established technology we argue for, namely SPARQL, and why we propose that SPARQL is an established technology. Section X introduces SPARQL and describes that SPARQL is a query language over linked data structured by RDF. Furthermore, SPARQL is the standard language to perform queries and extract data from RDF documents, as stated by Mosser et al.\cite[1]{MosserSPARQL} and Peréz er al\cite[1]{PerezSPARQL}. Additionally, the W3C has endorsed SPARQL as a W3C document. Hence, we argue that SPARQL is an established semantic technology. 
+
+\para
+Furthermore, we assume that the users of OTTR are knowledgeable regarding the well-establish semantic technology; due to OTTR being a language offering tools to represent semantic technologies, such as RDF and OWL, through modelling patterns[KILDE: OTTR]. Consequently, we consider SPARQL to be a known technology for OTTR users. 
+
+\para
+Now that we have introduced SPARQL as an established semantic technology and known to OTTR users. We will proceed with arguing why we believe that conducting validation through SPARQL queries is beneficial. Firstly, applying SPARQL queries results in Frog validation leveraging the existing W3C. In addition, the SPARQL validation queries formally describe and specify Frog's validation. Similarly to how SHACL shapes define the OTTR wOTTR serialisation and the Frog RDF serialisation. Secondly, the users of OTTR can understand the validation straight from the validation queries due to SPARQL being a comprehended technology. Lastly, we argue the Frog benefits for that the validation using SPARQL queries are relatively easy to maintain due to SPARQL being a well-established and documented technology. Furthermore, we do not need to know about Lutra's implementation to change and update the queries because the SPARQL files are separate from the implementation. Consequently, updating the validations later will only require the programmer to know about SPARQL queries and the special RDF serialisation in isolation.
+
+\para
+However, performing all the validation in SPARQL has proven impracticable due to the incapacity to conduct recursive queries with SPARQL language\cite[711]{RecursionSPARQL}. We argue that recursive queries are beneficial when validating that one type is compatible with another type due to the recursive manner in which OTTR and Frog define the function type and list type and the recursive definition of compatibility on these types. Consequently, all the validation regarding compatible typing and subtyping, namely validating right return type, argument types and generic argument types, needs to be validated in a recursive manner. Reuter et al. discuss recursion in SPARQL and propose a recursive linear operator, which they implemented as an extension of the Jena\cite[732]{RecursionSPARQL}. Nevertheless, implementing this extension on top of Jena in Lutra is out of scope for this thises. An effort to perform the validation mentioned above with SPARQL through property paths and a complex representation of types in the RDF syntax. However, attempting to make these queries was not sufficient. 
+
+\para
+Consequently, Lutra is limited to utilising java implementation for the validation depending on types. We then made three simple recursive methods in the validation function. As illustrated by figure X, we considered these methods moderately uncomplicated. Hence, we have leveraged SPARQL and Jena's SPARQL implementation as far as technically possible and use relatively simple java methods where applying SPARQL is proven to be complicated. We argue that the benefits mentioned regarding SPARQL, such as getting a formal definition of the validations being easy to maintain and understand for a user of OTTR, are more substantial compared to Lutra's query engine. Although we only leverage in parts of the validations. 
+
+\subsection{Validation Flow}
+
+\subsection{SPARQL}
+
+\subsection{Java}
 
 \section{Evaluation}
 \label{implementation_evaluation}

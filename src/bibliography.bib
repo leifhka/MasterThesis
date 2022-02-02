@@ -93,6 +93,26 @@
   type        = {{W3C} Recommendation},
   institution = {W3C}
 }
+
+@article{SPARQL_well-known,
+  author     = {P\'{e}rez, Jorge and Arenas, Marcelo and Gutierrez, Claudio},
+  title      = {Semantics and Complexity of SPARQL},
+  year       = {2009},
+  issue_date = {August 2009},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {34},
+  number     = {3},
+  issn       = {0362-5915},
+  url        = {https://doi-org.ezproxy.uio.no/10.1145/1567274.1567278},
+  doi        = {10.1145/1567274.1567278},
+  abstract   = {SPARQL is the standard language for querying RDF data. In this article, we address systematically the formal study of the database aspects of SPARQL, concentrating in its graph pattern matching facility. We provide a compositional semantics for the core part of SPARQL, and study the complexity of the evaluation of several fragments of the language. Among other complexity results, we show that the evaluation of general SPARQL patterns is PSPACE-complete. We identify a large class of SPARQL patterns, defined by imposing a simple and natural syntactic restriction, where the query evaluation problem can be solved more efficiently. This restriction gives rise to the class of well-designed patterns. We show that the evaluation problem is coNP-complete for well-designed patterns. Moreover, we provide several rewriting rules for well-designed patterns whose application may have a considerable impact in the cost of evaluating SPARQL queries.},
+  journal    = {ACM Trans. Database Syst.},
+  month      = {sep},
+  articleno  = {16},
+  numpages   = {45},
+  keywords   = {query language, semantic Web, RDF, Complexity, SPARQL}
+}
 %SPARQL END
 
 %SHACL START
@@ -242,5 +262,56 @@
   url     = {https://projects.apache.org/project.html?jena},
   urldate = {2022-01-24}
 }
+
+@article{RecursionSPARQL,
+  language  = {eng},
+  address   = {AMSTERDAM},
+  author    = {Reutter, Juan L and Soto, Adrian and Vrgoc, Domagoj},
+  keywords  = {Computer Science ; Computer Science, Artificial Intelligence ; Computer Science, Information Systems ; Computer Science, Theory & Methods ; Science & Technology ; Technology},
+  issn      = {1570-0844},
+  abstract  = {The need for recursive queries in the Semantic Web setting is becoming more and more apparent with the emergence of datasets where different pieces of information are connected by complicated patterns. This was acknowledged by the W3C committee by the inclusion of property paths in the SPARQL standard. However, as more data becomes available, it is becoming clear that property paths alone are not enough to capture all recursive queries that the users are interested in, and the literature has already proposed several extensions to allow searching for more complex patterns.
+               We propose a rather different, but simpler approach: add a general purpose recursion operator directly to SPARQL. In this paper we provide a formal syntax and semantics for this proposal, study its theoretical properties, and develop algorithms for evaluating it in practical scenarios. We also show how to implement this extension as a plug-in on top of existing systems, and test its performance on several synthetic and real world datasets, ranging from small graphs, up to the entire Wikidata database.},
+  journal   = {Semantic Web},
+  pages     = {711--740},
+  volume    = {12},
+  publisher = {IOS PRESS},
+  number    = {5},
+  year      = {2021},
+  title     = {Recursion in SPARQL}
+}
+
+@article{MosserSPARQL,
+  copyright = {2020 Elsevier Ltd},
+  language  = {eng},
+  author    = {Mosser, Matthieu and Pieressa, Fernando and Reutter, Juan L and Soto, Adrián and Vrgoč, Domagoj},
+  keywords  = {Algorithms ; Analysis ; API ; Bees ; JSON ; Semantic web ; SERVICE ; SPARQL ; Web sites},
+  issn      = {0306-4379},
+  abstract  = {Although the amount of RDF data has been steadily increasing over the years, the majority of information on the Web is still residing in other formats, and is often not accessible to Semantic Web services. A lot of this data is available through APIs serving JSON documents. In this work we propose a way of extending SPARQL with the option to consume JSON APIs and integrate this information into SPARQL query answers, obtaining a language that combines data from the “traditional” Web to the Semantic Web. Our proposal is based on an extension of the SERVICE operator with the ability to connect to JSON APIs. With the aim of evaluating these queries as efficiently as possible, we show that the main bottleneck is the amount of API requests, and present an algorithm that produces “worst-case optimal” query plans that reduce the number of requests as much as possible. We note that the analysis of this algorithm is studied in terms of an algorithm for evaluating relational queries with access methods with the minimal number of access queries, which is of independent interest. We show the superiority of the worst-case optimal approach in a series of experiments that take existing SPARQL benchmarks, and augment them with the ability to connect to JSON APIs in order to obtain additional information.
+               •We present a general extension for API SERVICE calls, that can handle JSON arrays.•We provide a full proof of the worst case optimal bound for the number of API calls.•We do an extensive experimental evaluation of our implementation of the extended SERVICE.•We show a detailed comparison of our approach with the previous work.},
+  journal   = {Information systems (Oxford)},
+  pages     = {101650},
+  volume    = {105},
+  publisher = {Elsevier Ltd},
+  year      = {2022},
+  title     = {Querying APIs with SPARQL}
+}
+
+@article{PerezSPARQL,
+  copyright = {Copyright 2009 Elsevier B.V., All rights reserved.},
+  language  = {eng},
+  address   = {NEW YORK},
+  author    = {Pérez, Jorge and Arenas, Marcelo and Gutierrez, Claudio},
+  keywords  = {Applied sciences ; Artificial intelligence ; Complexity ; Computer Science ; Computer Science, Information Systems ; Computer Science, Software Engineering ; Computer science; control theory; systems ; Computer systems and distributed systems. User interface ; Exact sciences and technology ; Information retrieval. Graph ; Information systems. Data bases ; Memory organisation. Data processing ; Query language ; RDF ; Science & Technology ; Semantic Web ; Software ; SPARQL ; Speech and sound recognition and synthesis. Linguistics ; Technology ; Theoretical computing},
+  issn      = {0362-5915},
+  abstract  = {SPARQL is the standard language for querying RDF data. In this article, we address systematically the formal study of the database aspects of SPARQL, concentrating in its graph pattern matching facility. We provide a compositional semantics for the core part of SPARQL, and study the complexity of the evaluation of several fragments of the language. Among other complexity results, we show that the evaluation of general SPARQL patterns is PSPACE-complete. We identify a large class of SPARQL patterns, defined by imposing a simple and natural syntactic restriction, where the query evaluation problem can be solved more efficiently. This restriction gives rise to the class of well-designed patterns. We show that the evaluation problem is coNP-complete for well-designed patterns. Moreover, we provide several rewriting rules for well-designed patterns whose application may have a considerable impact in the cost of evaluating SPARQL queries.},
+  journal   = {ACM transactions on database systems},
+  pages     = {1--45},
+  volume    = {34},
+  publisher = {ACM},
+  number    = {3},
+  year      = {2009},
+  title     = {Semantics and complexity of SPARQL}
+}
+
 
 %Implementation END
