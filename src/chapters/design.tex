@@ -284,6 +284,7 @@ To conclude, this section has presented the problem of making functions that we 
 
 \section{Validation}
 \label{designValidation}
+\textbf{TODO: returtypen er avhengig av at det er riktig antall generisce argumenter}
 OTTR validates the templates and instances before expanding the instances. The validation ensures the creator of the templates and instances that the syntax is correct and, among other things, that the instances refer to an existing template, with the correct arity of arguments and that the arguments are compatible typed with their corresponding parameter. When introducing Frog to OTTR, we open up the opportunity to use function calls as arguments in instances, as illustrated in figure \ref{fig:temlate_parameter_function}; consequently, OTTR needs to validate that the function call is correct and has a compatible type with the corresponding parameter. 
 
 \para

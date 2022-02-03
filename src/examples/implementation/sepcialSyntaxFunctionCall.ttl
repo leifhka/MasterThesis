@@ -1,0 +1,11 @@
+
+
+[]  frog:of ex:FunctionCallName;
+    frog:arg [frog:index 0
+              frog:val ex:value0];
+    frog:typVar [a frog:GenericType;
+                frog:index 1
+                frog:type xsd:string]
+    frog:typVar [a frog:GenericType;
+                frog:index 0
+                frog:var _:genricVariable]

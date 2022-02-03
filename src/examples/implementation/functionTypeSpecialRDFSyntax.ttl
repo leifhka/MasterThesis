@@ -1,0 +1,26 @@
+[]  a frog:Function ;
+    frog:argType  [ a rdf:List ;
+                    frog:argType  [ frog:depth  "0r0" ;
+                                    frog:type   xsd:int
+                                    ] ;
+                    frog:depth    "0r"
+                    ] ;
+    frog:argType  [ a             frog:Function ;
+                    frog:argType  [ frog:depth  "01r" ;
+                                    frog:type   xsd:int
+                                    ] ;
+                    frog:argType  [ frog:depth  "011" ;
+                                    frog:index  "1"^^xsd:int ;
+                                    frog:type   xsd:int
+                                    ] ;
+                    frog:argType  [ frog:depth  "010" ;
+                                    frog:index  "0"^^xsd:int ;
+                                    frog:type   xsd:int
+                                    ] ;
+                    frog:depth    "01"
+                    ] ;
+    frog:argType  [ frog:depth  "00" ;
+                    frog:index  "0"^^xsd:int ;
+                    frog:type   xsd:int
+                    ] ;
+    frog:depth    "0".

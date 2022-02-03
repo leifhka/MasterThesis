@@ -1,4 +1,4 @@
 
-def ex:plus2<<?T subtype owl:real>>(?T ?number) -> ?T :: (
+def ex:plus2<<?T subtypeOf owl:real>>(?T ?number) -> ?T :: (
     fn:plus<<?T>> ?number (fn:plus<<?T>> ?number ?number)
 ).

@@ -1,0 +1,5 @@
+
+ex:FunctionName :parameter 
+    [:index 1;
+    :parameterType xsd:integer;
+    :var _:number].

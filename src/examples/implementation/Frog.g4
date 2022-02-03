@@ -28,7 +28,7 @@ genericParameters
     ;
 
 genericParameter
-    : Variable 'subtype' type
+    : Variable 'subtypeOf' type
     ;
 
 parameters

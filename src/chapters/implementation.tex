@@ -130,7 +130,7 @@ ANTLR's visitor technique lets us control the traversing by explicitly calling m
       \label{parameterParser}
       An example of a parser class, this parser class i the parser for a parameter. The FBaseParserVisitor class extends the FrogBaseVisitor, wrapping the generic argument into a result class (class FBaseParserVisitor<T> extends FrogBaseVisitor<Result< T > >).  
   \end{example}
-  \lstinputlisting[language=java, firstnumber = 1, basicstyle=\small]{examples/implementation/FParameterParser.java}
+  \lstinputlisting[language=Java, firstnumber = 1, basicstyle=\small]{examples/implementation/FParameterParser.java}
 \end{figure}
 
 \para
@@ -169,6 +169,61 @@ Consequently, Lutra is limited to utilising java implementation for the validati
 \subsection{Validation Flow}
 
 \subsection{SPARQL}
+This section discusses the validation implementation that applies SPARQL as their technology. Firstly, we introduce the special RDF syntax utilised to perform the SPARQL queries. Secondly, we discuss the SPARQL validation queries, focusing on the queries regarding validating the following: function name exists, undefined parameter, and the right amount of arguments. Lastly, we examine the Lutra implementation for executing the SPARQL validation queries. 
+
+\subsubsection{Special RDF syntax for validation}
+\begin{figure}
+  \begin{minipage}{.4\textwidth}
+    \lstinputlisting[language=turtle, firstnumber = 1, basicstyle = \small]{examples/implementation/specialSyntaxParameter.ttl}
+    \caption{Illustrates how a parameter looks in the special RDF syntax}
+    \label{fig:specialRDF_parameter}
+  \end{minipage}%
+  \begin{minipage}{.5\textwidth}
+    \centering
+    \lstinputlisting[language=turtle, firstnumber = 1, basicstyle = \small]{examples/implementation/sepcialSyntaxFunctionCall.ttl}
+    \caption{Illustrates how a function call, arguments and generic arguments looks in the speciial RDF syntax}
+    \label{fig:specialRDF_functionCall}
+  \end{minipage}
+\end{figure}
+\begin{figure}
+  
+\end{figure}
+To execute the validation, we have made a special RDF syntax for representing the Frog Function. We have based the special RDF syntax on Frog's RDF syntax. Section X discusses why we need a special RDF syntax when executing SPARQL queries instead of Frog's existing RDF syntax. 
+
+\para
+There are two main differences between the special RDF syntax and Frog's RDF syntax. Firstly, the use of lists to represent data. The special RDF syntax compared to the Frog's RDF syntax does not utilise to the same degree. Most of the elements represented by a list in Frog's RDF syntax, such as function calls and parameters, have been replaced with a blank node structure in the special RDF syntax to utilise the property paths for easy recursions. Consequently, the special RDF syntax contains more metadata than Frog's RDF syntax. Secondly, the special RDF syntax more closely resembles the structure of Frog functions shown in \ref{fig:functionCall_and_function}, having a more precise separation of the function head and body. Examples of such a change are that a parameter variable and a variable type, in addition to the generic variable and the subtype of, now are connected through the same blank node, as figure \ref{fig:specialRDF_parameter} illustrates\footnote{Note that there is a triple in the parameter regarding the index, which is not used for now. However, we added the index for parameter and several other features with the hopes of not having to change the special syntax if the validation regarding checking the correct arguments are added in the future, as discussed in section Y.}.
+
+\begin{figure}
+  \centering
+  \begin{minipage}{.5\textwidth}
+    \centering
+    \lstinputlisting[language=turtle, firstnumber = 1, basicstyle = \tiny]{examples/implementation/functionTypeSpecialRDFSyntax.ttl}
+  \end{minipage}%
+  \begin{minipage}{.5\textwidth}
+    \centering
+    \includegraphics[scale=0.5]{functionRDFSpecialExample.jpg}
+  \end{minipage}
+  \label{fig:specialRDFSyntax example}
+  \caption[Function type in the special RDF synta]{The function type \lstinline{Function<xsd:int, Function<xsd:int,xsd:int, xsd:int>, List<xsd:int>>} written in the special RDF syntax on the left, and on the right this function type represented by a tree structre with the depth. }
+\end{figure}
+
+\para
+As mentioned, the special RDF syntax represents a function call with a blank node, which uses the :of predicate to link the blank node to the function name, the :arg predicate to a blank node representing an argument, the :typeArg predicate to a blank node representing a generic argument. An argument blank node consists of an index, value and a type. However, if the value is a function call, the type is not stated by the argument. Furthermore, the generic argument blank nodes relate to an index and type or a generic variable. Figure \ref{fig:specialRDF_functionCall} is a generalised example of a function call. 
+
+\para
+Finally, we will address the complex types, which as the function calls are represented with a blank node structure. The special RDF syntax built up the complex type by stating what complex type it is, a function type, a list type or a LUB type, the type arguments, and the type's depth. Furthermore, the type argument type contains the type and the types' depth. We built up the depth recursively:
+\begin{itemize}
+  \item Outmost type: the string 0
+  \item List or LUB types, n + 1 element : n's string +  the string 0
+  \item Function type and parameter, n + 1 element : n's string + parameters index 
+  \item Function type and parameter, n + 1 element : n's string + r
+\end{itemize}
+Figure \ref{fig:specialRDF_parameter} illustrates with a tree structure how we calculate the depth for the function type \lstinline{Function<xsd:int, Function<xsd:int,xsd:int, xsd:int>, List<xsd:int>>} and how this function type looks in the RDF syntax. Additionally, example X shows how the special RDF syntax writes the function from figure Y. 
+
+
+\subsubsection{Queries}
+
+\subsubsection{Lutra's execution}
 
 \subsection{Java}
 
@@ -176,7 +231,7 @@ Consequently, Lutra is limited to utilising java implementation for the validati
 \label{implementation_evaluation}
 
 \subsection{Memorisation}
-\textbf{NB: tatt fra design delen men ble overflødig og handlet plutselig mer om implementasjonen. Deler kan brukes til dette kampittelet}
+\textbf{NB: tatt fra design delen men ble overflødig og handlet plutselig mer om implementasjonen. Deler kan brukes til dette kampittelet. Figurene er oppdatert}
 \\
 When determining whether to use memorisation or not, we have to consider the advantages and disadvantages of utilising memorisation in the context of Frog. On the one hand, memorisation will assumably reduce Frog's time to evaluate the function calls. On the other hand, utilising memorisation in Frog will increase the amount of storage needed. In addition, performing a lookup in the lookup table takes in worst-case O(n)(KILDE) when utilising a hash table. Hence, the lookup time should be less than the time used to evaluate the function call. Consequently, we present two criteria we belives needs to fulfil for memorisation in the context of Frog to be beneficial:
 \begin{enumerate}
