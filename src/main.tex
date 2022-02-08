@@ -35,17 +35,8 @@
 \newcommand{\backgroundText}[1]{\colorbox{almond}{\textcolor{amaranth}{#1}}}
 
 \newtheorem{example}{Example}[section]
-
-\newtheorem{definition}{Definition}[section]
-
-\lstset{showstringspaces=false,
-basicstyle=\ttfamily,
-%keepspaces=true,
-breaklines=true,
-columns=fixed,
-keywordstyle=\color{keywordcolor},
-commentstyle=\color{gray}
-}
+\newtheorem{query}{Query}[section]
+\newtheorem{code}{Code}[section]
 
 \lstdefinelanguage{turtle}
 {
@@ -88,12 +79,23 @@ commentstyle=\color{gray}
     backgroundcolor=\color{white},
     frame=lines,
 }
+
+\lstdefinelanguage{lutraMessages}
+{
+    basicstyle=\ttfamily\small,
+    columns=fullflexible,
+    morecomment=[l]{\/\/},
+    tabsize=4,
+    basicstyle=\ttfamily\color{red},
+}
  
 \lstdefinelanguage{Java}
 {
     basicstyle=\ttfamily,
+    morekeywords={public,private,protected,class,abstract,return,var,implements,extends,static,final},
+    sensitive=true,
     keywordstyle=\color{javapurple}\bfseries,
-    stringstyle=\color{javared},
+    stringstyle=\color{green}\ttfamily,
     commentstyle=\color{javagreen},
     morecomment=[s][\color{javadocblue}]{/**}{*/},
     numbers=left,
@@ -104,11 +106,11 @@ commentstyle=\color{gray}
 }
 
 \lstdefinelanguage{sparql}
-{
-    morecomment=[l][\color{olivegreen}]{\#},
-    morestring=[b][\color{blue}]\",
-    morekeywords={SELECT,CONSTRUCT,DESCRIBE,ASK,WHERE,FROM,NAMED,PREFIX,BASE,OPTIONAL,FILTER,GRAPH,LIMIT,OFFSET,SERVICE,UNION,EXISTS,NOT,BINDINGS,MINUS,a},
-    sensitive=true
+{,
+    morekeywords={SELECT,CONSTRUCT,DISTINCT,DESCRIBE,ASK,WHERE,FROM,NAMED,PREFIX,BASE,OPTIONAL,FILTER,GRAPH,LIMIT,OFFSET,SERVICE,UNION,EXISTS,NOT,BINDINGS,MINUS,a,GROUP BY,ORDER BY},
+    sensitive=true,
+    numbers=left,
+    basicstyle = \small
 }
 
 

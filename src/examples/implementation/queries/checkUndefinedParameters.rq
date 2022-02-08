@@ -1,0 +1,28 @@
+SELECT DISTINCT ?functionName ?parameterVariable
+WHERE {
+    #Finds every parameter variable used as in function body 
+    ?functionName a frog:Function.
+    { #parameter used as an argument (also in a list)
+        ?functionName frog:body/(frog:arg/frog:val)+
+                        /(rdf:rest*/rdf:first)* ?parameterVariable
+    } UNION { #parameter used as a function
+        ?functionName frog:body/(frog:arg/frog:val)*
+                      /frog:of ?parameterVariable
+    }
+    
+    FILTER isBlank(?parameterVariable)
+    FILTER NOT EXISTS{ #remove defined parameters
+        ?functionName frog:parameter/frog:var ?parameterVariable
+    }
+
+    #next two not exists clauses removes blank nodes  
+    #that are not parameter varaibles 
+    FILTER NOT EXISTS { #remove list blank nodes
+        ?parameterVariable rdf:first [];
+            rdf:rest [].
+    }
+
+    FILTER NOT EXISTS { #remove function calls blank nodes
+        ?parameterVariable frog:of [].
+    }
+}

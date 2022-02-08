@@ -1,0 +1,52 @@
+SELECT DISTINCT *
+WHERE{
+    ?functionName a frog:Function;
+        frog:body/(frog:arg/frog:val)* ?functionCall.
+    
+    ?functionCall frog:of ?functionCallName.
+
+    { #finds how many arguments the function call has
+        SELECT ?functionCall (COUNT(?rec) AS ?received)
+        WHERE {
+            ?functionCall frog:of [].
+            OPTIONAL{
+                ?functionCall frog:arg ?rec.
+            }
+        }
+        GROUP BY ?functionCall
+    }
+    #finds how many parameters the function has
+    { #if the function is defined with a parameter variable
+        {
+            SELECT ?functionCallName (COUNT(?exp) AS ?expected)
+            WHERE {
+                    [] a frog:Function;
+                        frog:parameter [
+                            frog:var ?functionCallName;
+                            frog:parameterType ?parType
+                        ].
+                    ?parType a frog:Function.
+                    OPTIONAL { #finds the parameters 
+                               #of a parameterfunction
+                        ?parType frog:argType/frog:index ?exp
+                    }
+            }
+            GROUP BY ?functionCallName
+        }
+    } UNION { #if the functon is defined with a IRI
+        {
+            SELECT ?functionCallName (COUNT(?exp) AS ?expected)
+            WHERE {
+                ?functionCallName a frog:Function.
+
+                OPTIONAL{
+                    ?functionCallName frog:parameter ?exp.
+                }    
+                FILTER isIRI(?functionCallName)
+            }
+            GROUP BY ?functionCallName
+        }
+    }
+   FILTER(?received != ?expected)     
+}
+ORDER BY ?functionName ?functionCallName

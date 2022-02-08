@@ -123,13 +123,13 @@ Admittedly, we could have defined a new parsing rule named frogType which could 
 As mentioned, ANTLR4 generates classes and objects based on the defined Frog grammar, which Lutra utilises to parse the function document into function objects. ANTLR turns the document provided into a parse-tree and offers two different techniques for traversing the parsing three, namely parse-tree listeners and parse-tree visitors. Figure \ref{fig:parse_tree_example} is an example of a parsing three produced by ANTLR. Lutra's OTTR implementation utilises the visitor method for traversing the parsing tree. When expanding Lutra with the addition of Frog, it is beneficial to apply the same method since we can reuse the code written for Lutra's stOTTR parsing in the parsing of the HRS of Frog. 
 
 \para
-ANTLR's visitor technique lets us control the traversing by explicitly calling methods to visit children(KILDE antlr book). From Figure \ref{fig:parse_tree_example}, the functionHead's children are definition, genericParameter, parameters and returnType. ANTRL generates a base visitor class with an interface containing one visit method for each parsing rule in the grammar to perform the traversing. In the Frog grammar case, ANTLR generates a class FrogBaseVisitor that offers methods like visitParameter and visitFunction. However, the base visitor implementation of the visit methods only contains one action, to visit the children. Hence, we have made parser classes in Lutra that expand the FrogBaseVisitor and override the methods to define the method and create an object of the belonging class. For instance, example \ref{parameterParser} shows the class FParameterVisitor containing the method visitParameter since a parameter consists of a type and a variable. A parameter has two children a variable: a variable, which is a term, and a type. Hence the visitParameter needs to use the term and type parser to parse the children.
+ANTLR's visitor technique lets us control the traversing by explicitly calling methods to visit children(KILDE antlr book). From Figure \ref{fig:parse_tree_example}, the functionHead's children are definition, genericParameter, parameters and returnType. ANTRL generates a base visitor class with an interface containing one visit method for each parsing rule in the grammar to perform the traversing. In the Frog grammar case, ANTLR generates a class FrogBaseVisitor that offers methods like visitParameter and visitFunction. However, the base visitor implementation of the visit methods only contains one action, to visit the children. Hence, we have made parser classes in Lutra that expand the FrogBaseVisitor and override the methods to define the method and create an object of the belonging class. For instance, code \ref{parameterParser} shows the class FParameterVisitor containing the method visitParameter since a parameter consists of a type and a variable. A parameter has two children a variable: a variable, which is a term, and a type. Hence the visitParameter needs to use the term and type parser to parse the children.
 
 \begin{figure}
-  \begin{example}
+  \begin{code}
       \label{parameterParser}
       An example of a parser class, this parser class i the parser for a parameter. The FBaseParserVisitor class extends the FrogBaseVisitor, wrapping the generic argument into a result class (class FBaseParserVisitor<T> extends FrogBaseVisitor<Result< T > >).  
-  \end{example}
+  \end{code}
   \lstinputlisting[language=Java, firstnumber = 1, basicstyle=\small]{examples/implementation/FParameterParser.java}
 \end{figure}
 
@@ -222,8 +222,73 @@ Figure \ref{fig:specialRDF_parameter} illustrates with a tree structure how we c
 
 
 \subsubsection{Queries}
+The purpose of SPARQL validations queries is to find mistakes in the functions, such as the function body utilising a parameter variable that the function has not defined. Additionally, we have made one query for each validation in phases one and two in addition to the two warning validations, all described in section X. However, as the queries find mistakes in the function, the wording of the queries assignment is slightly different than presented in section X, as we have negated them. Consequently, the SPARQL query for validating that a function call in the function body has the correct arity of arguments are worded as finding every function call that does not have the correct arity of arguments. 
+
+\para
+In short, we categorise the validation queries into two types, the objective queries and the arity queries. The arity validation, correct arity of arguments and correct arity of generic arguments, are arity queries, and the rest are objective queries. Moreover, the objective queries consist of two stages: Firstly, to find the objective we are validating on, and secondly, to remove the objectives with a correct definition or use, which mainly consist of NOT EXIST clauses. On the other hand, the arity validation queries consist of four stages. Firstly, find all function calls in function bodies. Secondly, find the arity of arguments in these function calls. Thirdly, find the arity of parameters or generic parameters in the functions, in other words, the number of expected arguments or generic arguments. Lastly, utilising a FILTER clause to remove the matches where the function call arity of arguments or generic arguments equals the affiliated function's expected arity.
+
+\begin{query}
+    The validation query used to extract the function calls that does not use an exisiting function (either from the function library or a base function) or a parameter of the function type. 
+    \label{query:functionExists}
+\end{query}
+\lstinputlisting[language=sparql, firstnumber = 1]{examples/implementation/queries/checkFunctionExits.rq}
+
+\para 
+As mentioned, we will look deeper into three queries. Firstly, as displayed in query \ref{query:functionExists}, the query extracting every function call that does not use a valid function name, we will refer to this query as the existing function query. The existing function query is an objective query. Consequently, the existing function query consists of two stages. Firstly, to find the objective we are validating on, in this case, the function calls in the function bodies. As mentioned, the predicate \lstinline{:of} links a function call to the function name, consequently we want to find every object in a triple with :of as predicate. Consequently, used the triple \lstinline{[] :of ?functionCallName} to extract every function call name. However, we want to produce error messages that include the function name of the function containing the function call. Consequently, as shown on lines 5-6 in query \ref{query:functionExists}, the query extracts the function name and applies property paths to recursively find every function call name in the function's body. Secondly, the objective queries remove every correct use of objective. In the case of the existing function query, the correct use of the function call name is either if the function name is a parameter of the Function type or if the function call name is the IRI of a base function or a function in the function library. Therefore, the existing function query consists of two NOT EXIST clauses. The first clause on lines 10-13 removes matches where the function name is an IRI and is defined as a frog:Function. Furthermore, the second clause on lines 16-21 removes matches where the function contains a parameter that is the function call and as the frog:parameterType frog:Function. 
+
+\begin{query}
+    The validation query to find every parameter variable used in the function body that is not defined by the affiliated function head 
+    \label{query:undefinedParameter}
+\end{query}
+\lstinputlisting[language=sparql, firstnumber = 1]{examples/implementation/queries/checkUndefinedParameters.rq}
+
+\para 
+Secondly, we will introduce the query to extract every parameter used in the function body that is not defined in the function head, shown in query \ref{query:undefinedParameter}. In short, the undefined parameter query. The undefined parameter query is an objective query similar to the existing function query. However, in contrast to the existing function query, the objective is every parameter variable used in the function body in the first stage. We can use a parameter variable in two places in the function body: as an argument or as a function name. Consequently, as seen on lines 5-11, we utilise a UNION clause to extract them separately. The first part of the UNION clause utilises a property path to find every argument in the function body. Due to that, we can use parameters as an element in a list, such as (2 3 4 ?number), (rdf:rest*/rdf:first)* has been added to the end of this property path to extract every element in a possible list argument. The second part of the union extracts every function call name in the same fashion as the first step in the existing function query. Finally, in the first step, due to that, blank nodes represent parameter variables, we remove the arguments that are not blank nodes, with the FILTER clause seen on line 13. However, the UNION clause extracts blank nodes that are not variable, such as list inside lists, ((1 3 4) (5 9 1)), and function call blank nodes. Consequently, we have added two NOT EXIST clauses on lines 20-27 to remove these specific blank nodes. Furthermore, the second step in an objective query is to remove the correct use. In this case, the correct use is a parameter defined by the function head. Thus we remove every match in which the function defines the parameter variable, as seen on lines 14-16. 
+
+
+\begin{query}
+    The validation query to find every parameter variable used in the function body that is not defined by the affiliated function head 
+    \label{query:argumentArity}
+\end{query}
+\lstinputlisting[language=sparql, firstnumber = 1]{examples/implementation/queries/argumentArity.rq}
+
+\para 
+Lastly, we elaborate on the query extracting every function call having a different arity of arguments than the affiliated functions arity of parameters. In short, argument arity query and query \ref{query:argumentArity} depicts this query. As suggested by the name of this query, the argument arity query is an arity validation query. Thus the argument arity query consists of four stages: First, finding all the function calls in the function body. This first step is performed similarly to the first step in the existing function query. However, as seen on lines 3-6, we need the function call and the function call name in contrast to the existing function query. Consequently, we have moved the last part of the property path in the existing function query to line 6 so that we have references to both the function call and the function call name. Secondly, the query needs to find the arity of arguments in the function calls. The argument arity query extracts every argument from a function call and applies aggregation by grouping them after the function call and counting the received arguments by a sub-query, as seen on lines 8-17. Thirdly, the query finds how many arguments each function expects. Due to that, a function call name can be a parameter variable or an IRI referring to a base function or a function in the function library, we have separated this step with a UNION-clause containing two sub-queries, shown in lines 19-49. The first part of the UNION clause counts every parameter of a parameter of type function and groups them after their function call name, which is the parameter variable. Figure X(5.7) illustrates that the frog:argType is used on both the parameter types and the return type of function type; however, the parameters contains a triple stating their index in contrast to the return type. Consequently, as seen on line 31, the query only counts the type arguments that have an index. The second part of the UNION clause is similar to the first part; however, instead of extracting the type arguments of a function type, it extracts the parameters of a function. Lastly, this query removes every match where the received value is the same as expected, as seen on line 50. In query \ref{query:argumentArity}, we utilise optional in the sub-queries counting the parameters and arguments; we need to count the function calls with no arguments and the functions that expect zero arguments. Optional in combination with the aggregation and count will count zero when no parameters or arguments are present in the function
+
+\para 
+The queries not elaborated on in this section follow one of the two queries types; thus, the structure of these queries are recognisable. Additionally, two pairs of validation queries are revers objective queries: parameter variable and unused parameter variable, and undefined generic variable and unused generic variable. For a pair of queries to be revers queries two, they must fulfil two demands; we will use X and Y to represent the queries in the pair of revers objective queries: 
+\begin{enumerate}
+  \item The first stage in X must contain the same query patterns as Y's second stage. Consequently, X's first stage pattern is equal to the pattern found in Y's NOT EXIST clause. If X first stage pattern contains UNION clauses, then each UNION pattern matches the pattern found in a NOT EXIST clause in the second stage of Y.
+  \item The second stage in X must contain the same query patterns as Y's second stage. The translation between stage one and stage two is equivalent to point one. 
+\end{enumerate}
 
 \subsubsection{Lutra's execution}
+Lutra's implementation and execution of the queries consist of two parts. Firstly, a Jena model will construct the functions in the function library and base function in the special RDF syntax into an RDF graph. Secondly, using the Jena query library to read in the query files and execute the queries.  
+
+\para
+We have implemented a method for each class that a function can utilise, namely term classes, type classes, the GenericParameter class and the Parmeter class, which either add their special RDF syntax representation to the model or return a resource representing the object. Consequently, the functions recursively build up the model by calling on these methods. 
+
+\begin{code}
+  \label{queryClassExample}
+  The code of the query class that executes and prodcues messages for query \ref{query:undefinedParameter}. The parameter resulSet contains the result from executing the query, one row for each match.
+\end{code}
+\lstinputlisting[language=Java, firstnumber = 1, basicstyle=\small]{examples/implementation/CheckUndefinedParameters.java}
+
+\para
+As mentioned, we have applied Jena's query library to read in the query files and execute the queries over the Jena model, representing the RDF graph containing functions in the special RDF syntax. Furthermore, we have constructed one class for each query that we will refer to as a query class. The query classes implement the interface FunctionCheck. The interface FunctionChech extends a java Function(link), taking in a Model and returning a MessageHandler. Consequently, the FunctionCheck interface consists of an apply method taking in a model and returning a MessageHandler. Additionally, the interface consists of two other methods that the query classes need to implement: the getValidationFile method, which return the filename of the belonging query file, and the method ErrorMessage method, which produces a MessageHandler containing the possible validation messages. The interface has implemented a default apply method that reads in the query file and calls on the errorMessage method to produce the MessageHandler in which it returns. In code \ref{queryClassExample}, we see an example of a query class, namely the query class CheckVariableExists, which executes query \ref{query:undefinedParameter}. The errorMessage method extracts the values from the result of the queries to produce error messages. In the case of figure \ref{fig:validation_erro_example}, the CheckVairable exist class found in  code \ref{queryClassExample} would produce the following error messages:  
+
+\begin{lstlisting}[language=lutraMessages]
+  [ERROR] Variable ?numbr1 which is used in function ex:minus2 is never declared 
+  [ERROR] Variable ?number which is used in function ex:minus2 is never declared 
+\end{lstlisting}
+
+\begin{figure}[h]
+  \lstinputlisting[language=frog, firstnumber = 1]{examples/implementation/validationError.frog}
+  \caption{An example of a function that utilises undefined parameters in the function body}
+  \label{fig:validation_erro_example}
+\end{figure}
+
+ 
 
 \subsection{Java}
 

@@ -1,0 +1,23 @@
+SELECT DISTINCT ?functionName ?functionCallName
+WHERE {
+    #finds everything used as a function call 
+    #name in the function body
+    ?functionName a frog:Function;
+       frog:body/(frog:arg/frog:val)*/frog:of ?functionCallName.
+
+    #removes all mathces where the function call 
+    #name is an IRI and the IRI is of type function
+    FILTER NOT EXISTS { 
+            ?functionCallName a frog:Function.
+            FILTER isIRI(?functionCallName)
+    }
+    #removes all mathces where a blank node is used as
+    #function is defined as a parameter of type function
+    FILTER NOT EXISTS { 
+            ?functionName frog:parameter 
+                            [frog:var ?functionCallName;
+                             frog:parameterType [a frog:Function]
+                            ]
+            FILTER isBlank(?functionCallName)
+    }
+}

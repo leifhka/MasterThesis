@@ -1,0 +1,5 @@
+
+def ex:minus2(xsd:integer ?number1) -> xsd:integer :: (
+    fn:minus<xsd:integer> ?number1
+        (fn:minus<xsd:integer> ?numbr1 ?number)
+).
