@@ -1,8 +1,9 @@
 
 \chapter{Implementation}
-In this chapter, we will discuss the implementation of Frog. Most of the chapter will discuss how we have implemented Frog in isolation, while the last section, section X, will describe the changes performed in OTTR to integrate Frog. Lutra is the name of the implementation of OTTR and is written in Java\footnote{Lutra is open source and can be found on the following link \url{https://gitlab.com/ottr/lutra/lutra}}. Furthermore, Frog will be an integrated part of Lutra. Consequently, we have also written Frog in Java and utilised some of the same technologies since utilising the same technologies lets us reuse code written for OTTR. As a consequence of Frog utilising Lutras OTTR implementation, section X will briefly introduce the Lutra implementation of OTTR needed to understand the subsequent sections. 
+In this chapter, we will discuss the implementation of Frog. Most of the chapter will discuss how we have implemented Frog in isolation, while the last section, section X\lhk{(better to just introduce a \\ref{changes-to-ottr}), even though it is not yet defined)}, will describe the changes performed in OTTR to integrate Frog. Lutra is the name of the implementation of OTTR and is written in Java\footnote{Lutra is open source and can be found on the following link \url{https://gitlab.com/ottr/lutra/lutra}}. Furthermore, Frog will be an integrated part of Lutra. Consequently, we have also written Frog in Java and utilised some of the same technologies since utilising the same technologies lets us reuse code written for OTTR. As a consequence of Frog utilising Lutras OTTR implementation, section X will briefly introduce the Lutra implementation of OTTR needed to understand the subsequent sections. 
 
 \para
+\lhk{Why use \\para?}
 Figure \ref{fig:basic_program_flow} illustrates the basic program flow of Frog as an isolated program. In short, the implementation will start with parsing the function either in the RDF syntax or in the Human readable syntax into a frog function java objects. The parsing of the syntaxes is described in section X. Secondly, Frog will validate the functions in the function library. Validating the function is a three-step process: transforming the function into a special RDF syntax and then performing validation with SPARQL on the first and second validation phase before proceeding to validate the third validating phase with a Java implementation. A furrow discussion on the implementation of the validation step is found in section Y. Lastly, Frog executes the function calls, as discussed in section Z.
 
 \begin{figure}
@@ -15,7 +16,7 @@ Figure \ref{fig:basic_program_flow} illustrates the basic program flow of Frog a
 All three steps depend on the previous step, implying that the validation step requires the parsing to be complete without causing an error message. Additionally, the execution step will only proceed if Frog completes the validation sept without any error messages.  
 
 \section{Overview OTTR implementation}
-As mentioned, Lutra is the implementation of OTTR. We will, in this section, discuss Lutras implementation revolving around templates and instances as we consider the implementation regarding tabOTTR and bOTTR irrelevant since Frog functions are to be utilised in the templates and instances. We can utilise Lutra to read and write templates and instances and expand the instances by using a command line interface\footnote{The command line interface for Lutra can be found her \url{https://ottr.xyz/\#Lutra}}. Furthermore, we can, as with Frog, consider the expansion of instances in Lutra to consist of three parts: first parsing, both the wOTTR and stOTTR syntax, secondly to validate the templates and instances and lastly, expanding the templates.
+As mentioned, Lutra is the implementation of OTTR\lhk{(perhaps rather say "reference implementation", as there are other implementations)}. We will, in this section, discuss Lutras implementation revolving around templates and instances as we consider the implementation regarding tabOTTR and bOTTR irrelevant since Frog functions are to be utilised in the templates and instances. We can utilise Lutra to read and write templates and instances and expand the instances by using a command line interface\footnote{The command line interface for Lutra can be found her \url{https://ottr.xyz/\#Lutra}}. Furthermore, we can, as with Frog, consider the expansion of instances in Lutra to consist of three parts: first parsing, both the wOTTR and stOTTR syntax, secondly to validate the templates and instances and lastly, expanding the templates.
 
 \para
 Lutra parsing transforms the templates and instances written in the two serialisations into objects. Hence, classes for terms and types in Lutra already exist, which we can utilise in the Frog implementation due to OTTR and Frog using the same type and term system. We argue that utilising the same classes will make OTTR and Frog more seamless. Furthermore, both the parsing considering wOTTR and stOTTR utilises two different technologies. Firstly, wOTTR uses Jena. Jena or Apache Jena is a framework built for integrating Semantic Web and Linked Data technologies and applications in Java. Including parsing RDF data in different serialisations and executing SPARQL queries\cite{apache_jena}. Secondly, stOTTR uses ANTLR v4\footnote{\url{https://www.antlr.org}}. ANTLR v4 is a library made to describe grammar formally and translate the grammar into parsing code which is both executable and human-readable\cite{antlr4Book}. ANTLR does, in addition, produce error messages if the templates or instances are not compatible with the grammar. The grammar describing templates and instances in the stOTTR serialisation can be found in the sTOTTR documentation\cite{OTTR_stOTTR}.
@@ -45,7 +46,7 @@ As formerly mentioned, the parsing step in Lutra's Frog implementation consists 
 \begin{figure}
   \centering
   \includegraphics[scale=0.5]{FunctionClassDiagram.jpg}
-  \caption{A UML diagram of a function. Note that this diagram has removed unnecessary connections and is a simplification of the actual code.}
+    \caption{A UML diagram of a function. Note that this diagram has removed unnecessary connections and is a simplification of the actual code.\lhk{Why does FrogFunction have a FunctionCall-pointer?}}
   \label{fig:FunctionClassDiagram}
 \end{figure}
 
@@ -92,7 +93,7 @@ However, before we continue to depict the Frog grammar, we will define the chang
 \lstinputlisting[language=antlr, firstline = 110, lastline = 120]{examples/implementation/stOTTR.g4}
 
 \para
-Furthermore, Frog introduces two new terms to OTTR: the function term and the function call. However, the syntax for a function term is equivalent to an IRI term; consequently, the function term does not change grammar since the distinction between an IRI term and a function term is semantic. On the other side, the function call introduces a new term in OTTR, which we need to define in the stOTTR grammar. A function call is built-up as a list surrounded by round brackets \backgroundText{( )} and space separating the elements. Furthermore, a function call consists of an optional function call definition, the function name, the generic terms, and an arbitrary number of terms. The generic arguments are surrounded by two angle brackets on each side \backgroundText{<< >>} and an arbitrary number of generic variables, such as a variable or a type.
+Furthermore, Frog introduces two new terms to OTTR: the function term and the function call. However, the syntax for a function term is equivalent to an IRI term; consequently, the function term does not change grammar since the distinction between an IRI term and a function term is semantic. On the other side, the function call introduces a new term in OTTR, which we need to define in the stOTTR grammar. A function call is built-up as a list surrounded by round brackets \backgroundText{( )} and space separating the elements. Furthermore, a function call consists of an optional function call definition, the function name, the generic terms, and an arbitrary number of terms. The generic arguments are surrounded by two angle brackets on each side \backgroundText{<< >>}\lhk{I think the displayed symbol is different from two consequtive "<", perhaps rather use verbatim-output rather than backgroundText?} and an arbitrary number of generic variables, such as a variable or a type.
 
 \para
 \lstinputlisting[language=antlr, firstline = 141, lastline = 165]{examples/implementation/stOTTR.g4}
@@ -149,10 +150,10 @@ Notably, Lutra already contains several parsing classes and visitor methods due 
 This section presents the implementation of the validation elaborated on in Section X. Note that Lutra only performs the validation on the frog function if Lutra completes the parsing stem without producing messages with severity degree Error or higher. Furthermore, as figure Y illustrates, Lutra executes the validation in three phases, and a phase is only executed if the previous phases are performed without any validations errors. Note that we have moved the implementation of step 6, which checks that the function has the correct return type. In short, we had to move step 6 in the implementation due to limitations in the desired technology, namely SPARQL. Section X discusses why this move is inevitable.
 
 \subsection{Technology}
-As mentioned, Lutra utilises a custom created queries engine built-in Java made to perform validation on OTTR templates and instances. Hence, when working with validation and OTTR, one must learn this custom created query engine. However, we argue that using established technologies compared to Lutra's custom created queries is more beneficial for several reasons. 
+As mentioned, Lutra utilises a custom created queries engine built-in Java made to perform validation on OTTR templates and instances. Hence, when working with validation and OTTR, one must learn this custom created query engine. However, we argue that using established technologies compared to Lutra's custom created queries is more beneficial for several reasons. \lhk{Can also state that the OTTR project are planning to replace the query language with more standard technologies.}
 
 \para
-Before stating the benefits, we need to specify what established technology we argue for, namely SPARQL, and why we propose that SPARQL is an established technology. Section X introduces SPARQL and describes that SPARQL is a query language over linked data structured by RDF. Furthermore, SPARQL is the standard language to perform queries and extract data from RDF documents, as stated by Mosser et al.\cite[1]{MosserSPARQL} and Peréz er al\cite[1]{PerezSPARQL}. Additionally, the W3C has endorsed SPARQL as a W3C document. Hence, we argue that SPARQL is an established semantic technology. 
+\lhk{I think this and the two next paragraphs should be moved to the discussions chapter, and here simply reference that}Before stating the benefits, we need to specify what established technology we argue for, namely SPARQL, and why we propose that SPARQL is an established technology. Section X introduces SPARQL and describes that SPARQL is a query language over linked data structured by RDF. Furthermore, SPARQL is the standard language to perform queries and extract data from RDF documents, as stated by Mosser et al.\cite[1]{MosserSPARQL} and Peréz er al\cite[1]{PerezSPARQL}. Additionally, the W3C has endorsed SPARQL as a W3C document\lhk{rather W3C Reccomendation}. Hence, we argue that SPARQL is an established semantic technology. 
 
 \para
 Furthermore, we assume that the users of OTTR are knowledgeable regarding the well-establish semantic technology; due to OTTR being a language offering tools to represent semantic technologies, such as RDF and OWL, through modelling patterns[KILDE: OTTR]. Consequently, we consider SPARQL to be a known technology for OTTR users. 
@@ -175,7 +176,7 @@ This section discusses the validation implementation that applies SPARQL as thei
 \begin{figure}
   \begin{minipage}{.4\textwidth}
     \lstinputlisting[language=turtle, firstnumber = 1, basicstyle = \small]{examples/implementation/specialSyntaxParameter.ttl}
-    \caption{Illustrates how a parameter looks in the special RDF syntax}
+      \caption{Illustrates how a parameter looks in the special RDF syntax\lhk{Show the normal FROG-RDF-syntax as well}}
     \label{fig:specialRDF_parameter}
   \end{minipage}%
   \begin{minipage}{.5\textwidth}
@@ -204,7 +205,7 @@ There are two main differences between the special RDF syntax and Frog's RDF syn
     \includegraphics[scale=0.5]{functionRDFSpecialExample.jpg}
   \end{minipage}
   \label{fig:specialRDFSyntax example}
-  \caption[Function type in the special RDF synta]{The function type \lstinline{Function<xsd:int, Function<xsd:int,xsd:int, xsd:int>, List<xsd:int>>} written in the special RDF syntax on the left, and on the right this function type represented by a tree structre with the depth. }
+    \caption[Function type in the special RDF synta]{The function type \lstinline{Function<xsd:int, Function<xsd:int,xsd:int, xsd:int>, List<xsd:int>>} written in the special RDF syntax on the left, and on the right this function type represented by a tree structre with the depth\lhk{Shouldn't the depth of e.g. the lowest layer be 010, 011, and 01r?}. }
 \end{figure}
 
 \para
@@ -270,7 +271,7 @@ We have implemented a method for each class that a function can utilise, namely 
 
 \begin{code}
   \label{queryClassExample}
-  The code of the query class that executes and prodcues messages for query \ref{query:undefinedParameter}. The parameter resulSet contains the result from executing the query, one row for each match.
+    The code of the query class that executes and prodcues messages for query \ref{query:undefinedParameter}. The parameter resulSet contains the result from executing the query, one row for each match.\lhk{Would it be possible to move the message generation into SPARQL-queries, thereby removing the need for separate classes for each query?}
 \end{code}
 \lstinputlisting[language=Java, firstnumber = 1, basicstyle=\small]{examples/implementation/CheckUndefinedParameters.java}
 
@@ -288,19 +289,9 @@ As mentioned, we have applied Jena's query library to read in the query files an
   \label{fig:validation_erro_example}
 \end{figure}
 
+ 
+
 \subsection{Java}
-\begin{figure}[h]
-  \centering
-  \includegraphics[scale=0.4]{genericArguments.jpg}
-  \caption{A sequent diagram representing the validation of the use of generic arguments}
-  \label{fig:genericArgumentsValidation}
-\end{figure}
-\begin{figure}[h]
-  \centering
-  \includegraphics[scale=0.6]{returnTypeValidation.jpg}
-  \caption{A sequent diagram representing the validation of the use of retrun type}
-  \label{fig:returnTypeValidation}
-\end{figure}
 
 \section{Evaluation}
 \label{implementation_evaluation}
